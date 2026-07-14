@@ -11,5 +11,47 @@ Initialize -> Start -> Shutdown
 `Initialize` 获取句柄、注册端口并准备资源，可以明确失败。所有 Module 初始化完成、
 部署摘要验证通过后才进入 `Start`。`Shutdown` 必须停止输出、取消任务并释放受控资源。
 
+当前接口为：
+
+```cpp
+class Module {
+ public:
+  virtual std::string_view Name() const noexcept = 0;
+  virtual Status Initialize(ModuleContext& context) noexcept = 0;
+  virtual Status Start() noexcept = 0;
+  virtual void Shutdown() noexcept = 0;
+};
+```
+
+Runtime 先按生成顺序初始化 Executor，再初始化 Module；启动顺序同样是 Executor 在前。
+关闭和失败回滚使用相反顺序：先逆序关闭 Module，再逆序关闭 Executor。某个 Module 的
+`Initialize` 或 `Start` 失败时，Runtime 记录失败对象、阶段和 `Status`，不会继续启动
+半套机器人。
+
 构造函数不得启动线程、订阅 Topic 或访问硬件。可移植 Module 也不得自行创建
 FreeRTOS task 或 `std::thread`，而是从 `ModuleContext` 获取声明过的 Executor。
+
+## ModuleContext
+
+`ModuleContext` 是当前 Module 的静态能力视图，不拥有资源。deployment compiler 为它
+注入默认 Executor、单调时钟、日志、诊断、端口表和参数表。Module 在 `Initialize`
+阶段按端口名和生成类型解析句柄：
+
+```cpp
+Status Controller::Initialize(ModuleContext& context) noexcept {
+  if (auto status = context.ResolveTopicPublisher(
+          "command_out", command_publisher_);
+      !IsOk(status)) {
+    return status;
+  }
+  return context.ResolveParameter("gain", gain_);
+}
+```
+
+解析会同时校验端口类别和 Schema Hash。端口名存在但消息类型不匹配时返回
+`Status::kTypeMismatch`，不会通过 `void*` 猜测类型。静态注册表 seal 后不可增加端口，
+因此这里不是运行时发现机制。
+
+`ModuleContext` 与 `ExecutionContext` 不可混用：前者回答“这个 Module 能使用什么”，
+后者回答“当前代码正在线程、回调还是中断中执行”。日志、诊断、发布和参数修改都应
+传入当前 `ExecutionContext`。
