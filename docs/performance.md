@@ -20,3 +20,14 @@ title: 性能与实时性
 | C board F4 gimbal | 89832 | 2928 | 76920 |
 
 这些数字只是迁移比较基线，不是新框架已经达到的性能结果。
+
+## 已验证的控制路径约束
+
+当前 `chassis-wheel-legged` host 测试在全局 `operator new` 计数器下执行一次完整的
+Topic 输入、双 `MotorGroup::Snapshot`、五连杆/LQR/VMC 计算、双组 `Apply` 和状态发布，
+计数保持不变。相同测试在 AppleClang 17 的严格告警、AddressSanitizer 与
+UndefinedBehaviorSanitizer 下通过。
+
+这只证明该 host 路径没有动态分配和已检测的内存/未定义行为问题，不等价于 MCU
+WCET、栈上界或 deadline 已验证。周期耗时、MC02 RAM/栈与中断干扰必须由后续固件
+map、栈水位和目标板测量补齐。

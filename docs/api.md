@@ -14,7 +14,8 @@ Topic、Service、Action、Parameter、TypeSupport、transport backend 和配置
 | --- | --- |
 | `runtime.hpp` | Runtime 生命周期、失败记录和逆序回滚 |
 | `module.hpp` | `Module` 与静态 `ModuleSlot` |
-| `module_context.hpp` | Runtime 能力、端口与参数解析 |
+| `module_context.hpp` | Runtime 能力、端口、参数与类型化硬件解析 |
+| `hardware_registry.hpp` | seal 后只读的固定容量类型化硬件表 |
 | `execution_context.hpp` | thread/callback/interrupt 语义 |
 | `executor.hpp` | 无分配任务接口与统计 |
 | `cooperative_executor.hpp` | 定长串行 Executor |
@@ -28,6 +29,7 @@ Topic、Service、Action、Parameter、TypeSupport、transport backend 和配置
 | `parameter_registry.hpp` | seal 后只读的类型安全参数表 |
 | `runtime_services.hpp` | Clock、Log、Diagnostics 平台无关接口 |
 | `legacy_module_adapter.hpp` | 旧对象 lifecycle hook 适配 |
+| `motor_group.hpp` | 完整电机组快照、整组命令和显式 Relax 能力契约 |
 
 这些接口当前标记为 `0.1.0-dev`，在第一套双板部署完成前仍允许有记录的破坏性调整。
 transport backend、配置 Schema 和生成文件参考会在对应实现通过测试后加入本页。

@@ -34,7 +34,7 @@ FreeRTOS task 或 `std::thread`，而是从 `ModuleContext` 获取声明过的 E
 ## ModuleContext
 
 `ModuleContext` 是当前 Module 的静态能力视图，不拥有资源。deployment compiler 为它
-注入默认 Executor、周期任务绑定器、单调时钟、日志、诊断、端口表和参数表。Module
+注入默认 Executor、周期任务绑定器、单调时钟、日志、诊断、端口表、参数表和硬件表。Module
 在 `Initialize` 阶段按端口名和生成类型解析句柄：
 
 ```cpp
@@ -51,6 +51,23 @@ Status Controller::Initialize(ModuleContext& context) noexcept {
 解析会同时校验端口类别和 Schema Hash。端口名存在但消息类型不匹配时返回
 `Status::kTypeMismatch`，不会通过 `void*` 猜测类型。静态注册表 seal 后不可增加端口，
 因此这里不是运行时发现机制。
+
+硬件也通过名称和公开类型契约解析：
+
+```cpp
+Status Chassis::Initialize(ModuleContext& context) noexcept {
+  if (auto status = context.ResolveHardware("joint_motors", joint_motors_);
+      !IsOk(status)) {
+    return status;
+  }
+  return context.ResolveHardware("wheel_motors", wheel_motors_);
+}
+```
+
+`StaticHardwareRegistry<N>` 在生成入口中加入设备后 seal。解析同时检查逻辑名与
+`TypeName()`；同名但类型不同返回 `kTypeMismatch`。Module 得到的是诸如
+`MotorGroup` 的平台无关能力接口，不是 CAN handle 或具体驱动对象。硬件表没有动态
+发现、运行期新增或字符串工厂语义。
 
 `ModuleContext` 与 `ExecutionContext` 不可混用：前者回答“这个 Module 能使用什么”，
 后者回答“当前代码正在线程、回调还是中断中执行”。日志、诊断、发布和参数修改都应
