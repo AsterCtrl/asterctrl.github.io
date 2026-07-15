@@ -29,6 +29,7 @@ Topic、Service、Action、Parameter、TypeSupport、transport backend 和配置
 | `parameter_registry.hpp` | seal 后只读的类型安全参数表 |
 | `runtime_services.hpp` | Clock、Log、Diagnostics 平台无关接口 |
 | `legacy_module_adapter.hpp` | 旧对象 lifecycle hook 适配 |
+| `byte_reader.hpp` | 非阻塞、有界、显式状态的已排队 RX 字节读取能力 |
 | `motor_group.hpp` | 完整电机组快照、整组命令和显式 Relax 能力契约 |
 
 这些接口当前标记为 `0.1.0-dev`，在第一套双板部署完成前仍允许有记录的破坏性调整。

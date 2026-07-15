@@ -36,6 +36,11 @@ map、栈水位和目标板测量补齐。
 周期 Executor、latest 输入映射、仲裁和 `RobotIntent` 发布，计数保持不变。其失败注入
 覆盖 source 超龄/离线、非法 source 和 publisher 背压，同样只证明 host 热路径。
 
+`dr16` 与 `vt13` 的真实 Runtime 周期也在全局分配计数器下保持不变。读取预算固定为
+每周期最多 4 次、每次最多 64 B；测试以 5 B UART 分片证明 VT13 的 21 B 帧会跨两个
+周期完成，而不会突破预算。协议测试覆盖错位/丢字节恢复、CRC 或物理域错误、100 ms
+失联、读取失败和离线发布背压；它们没有测量目标 MCU 上的 UART 队列高水位或 WCET。
+
 当前双板 deployment report 生成 F4 侧 7 个 Executor、声明栈 17,920 B，H7 侧 6 个
 Executor、声明栈 24,576 B。经典 CAN 1 Mbit/s 下语义 route 利用率为 0.2839，设备预留
 为 0.3000，总计 0.5839，低于 0.65 构建上限。该数值包含最坏 bit stuffing、帧间隔和

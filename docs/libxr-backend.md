@@ -18,6 +18,22 @@ BSP 描述物理板能力，hardware profile 描述机器人在该板上的接�
 换 Dev C、MC02 或 host fake 时，前三层可以变化，控制 Module 的源码和公开接口不变。
 若新板无法提供同一能力契约，部署编译应失败，而不是把板级条件编译塞回控制算法。
 
+## UART 字节读取边界
+
+Runtime 的 `ByteReader` 只表示“读取已经进入有界软件 RX 队列的字节”。它返回明确的
+`Status` 和 `bytes_read`：无数据为 `kUnavailable`，不会阻塞等待下一帧，也不会把
+DMA 缓冲区、libxr Queue、HAL UART handle 或回调类型暴露给 Module。
+
+`xrobot-libxr-backend::UartReaderAdapter` 把 libxr RX Queue 适配为该契约。ISR/DMA
+回调只负责有界交接，协议扫描和 CRC 校验由周期 Executor 在线程上下文完成；ISR 调用
+`Read()` 会被明确拒绝。当前接口故意只有 RX。发送侧在能够分别表达“已入软件队列”、
+“已交给外设”和“物理发送完成”之前，不提供一个含糊的 `Write()` 成功状态。
+
+DR16 和 VT13 Module 都把 hardware profile 中的逻辑 `uart` 解析为同一个
+`ByteReader`，因此 host fake、Dev C UART3/UART6 或未来其他 BSP adapter 可替换，而
+协议解析源码不变。该能力契约解决的是 I/O 可移植性；波特率、奇偶校验、DMA 和引脚仍
+属于 BSP 与 hardware profile。
+
 ## MotorGroup 契约
 
 `motor` Package 的 `MotorGroup` 提供三个有界操作：
