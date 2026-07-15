@@ -43,9 +43,9 @@ DR16 和 VT13 Module 都把 hardware profile 中的逻辑 `uart` 解析为同一
 必须返回背压，调用方保留同一帧后重试，adapter 不得保存调用方 span。
 
 Dev C hardware profile 可把这一能力绑定到 `usb_cdc1`，host replay、仿真或其他板也可
-实现同一接口。真正的 adapter 仍必须定义固定 RX/TX 队列、ISR/USB callback 的有界交接、
-accepted 与 completed 状态、断线清队列和重枚举行为；这些平台语义不能由兼容协议 codec
-或应用 Module 猜测。
+实现同一接口。当前 `ByteStreamVisionTransport` 已用固定 RX/TX 队列完成 libxr USB CDC
+适配并进入 F4 固件；callback 只做有界交接，Module 在线程上下文解析。断线重枚举和真实
+上位机 capture replay 仍需硬件测试，这些平台语义不能由兼容协议 codec 或应用 Module 猜测。
 
 ## MotorGroup 契约
 
@@ -59,6 +59,12 @@ accepted 与 completed 状态、断线清队列和重枚举行为；这些平台
 电流换算属于 adapter/hardware profile。轮腿底盘因此只依赖四关节组与两轮组；DJI、
 达妙和未来仿真 adapter 可以替换，而不会污染五连杆与 LQR 代码。
 
+`Command::torque_limit_nm` 是所有控制模式共用的可选输出边界：正值同时约束 torque
+命令与 position/velocity PID 最终输出，零值使用 adapter/model 上限。轮腿功率模型只
+决定这个平台无关边界，不再修改 DJI 私有 `final_output`。DJI 换算使用转子扭矩常数，
+configured reduction 只乘一次；M3508 的 `0.3 Nm/A` 被正确视为原装 `3591/187`
+减速箱输出常数，`268/17` 轮腿满量程测试约为 4.9256 Nm，而不是再放大 19 倍。
+
 `Feedback::fault_flags` 不直接泄漏厂商状态字。adapter 必须映射为统一的 `FaultFlag`：
 堵转、过温、过流、通信、编码器和驱动故障。执行器 Module 再按机构语义决定处理方式，
 例如发射拨盘可对堵转做一次有界退弹，但通信或驱动故障必须释放输出。尚未完成映射的
@@ -67,7 +73,7 @@ adapter 不能把未知厂商故障默认为“无故障”。
 标准云台在 Module 内完成使用 `AttitudeState` 的角度外环，只把两个 rad/s 参考交给
 单元素 `MotorGroup`。DJI adapter 负责 GM6020 内层速度 PID、raw current 与 SI 的换算、
 命令方向、编码器方向和零位。当前 Dev C profile 保存 legacy ECD 5010/4215 与内环参数，
-但方向归一和真实机构响应在 adapter 目标测试完成前仍是待验证项。
+adapter 已进入并链接 F4 固件；方向归一、机械零位和真实机构响应仍需台架验证。
 
 ## SuperCapLink 契约
 
@@ -77,8 +83,8 @@ boost 请求。无完整遥测时返回 `kUnavailable`，不能在线程中阻�
 
 当前 SHU 自制超电 adapter 使用经典 CAN `0x210/0x211` 八字节协议。协议 codec 属于
 `supercap-ctrl` Package；CAN2 资源、接收过滤、ISR/DMA 到固定队列的交接和 libxr 发送
-完成语义属于 MC02 BSP adapter。仿真 adapter 可以直接实现同一 `SuperCapLink`，无需
-伪造 CAN 外设或修改 Module。
+完成语义属于 `LibxrShuSuperCapLink`。它已与轮电机共享 endpoint 并链接 H7 固件；仿真
+adapter 可以直接实现同一 `SuperCapLink`，无需伪造 CAN 外设或修改 Module。
 
 `boost_requested` 是跨队伍的语义字段，不等于当前 SHU 帧中的一个 bit。SHU 协议没有
 该字段，codec 会明确忽略它；轮腿的主动、被动、充电和安全功率状态仍由底盘 Module
@@ -93,5 +99,5 @@ UART、固定 TX 队列、DMA 生命周期和序号。这样 UI Module 可以在
 
 `Write()` 成功只表示一条完整命令已被有界发送路径接受，不表示 DMA 或物理发送已经
 完成；队列满必须返回明确背压，调用方保留同一条命令后重试。adapter 不得保存调用方
-buffer 的引用，也不得在 UI Executor 中等待串口。Shutdown、DMA 错误、序号推进和重连
-后的旧队列清理仍需由 MC02 adapter 的目标测试确定。
+buffer 的引用，也不得在 UI Executor 中等待串口。`LibxrRefereeUiWriter` 已进入 H7 固件；
+Shutdown、DMA 错误、序号推进、重连后的旧队列清理和真实客户端画面仍需台架确定。

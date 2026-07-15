@@ -16,8 +16,9 @@ Module 端口图和实例放置自动推导。Route rule 只选择 QoS，不能�
 ```sh
 xrctl deploy compile \
   control-2027/workspace.yaml \
-  control-2027/deployments/infantry-wheel-legged.yaml \
-  control-2027/build/generated/infantry-wheel-legged
+  control-2027/deployments/infantry-wheel-legged-dual.yaml \
+  control-2027/build/generated/infantry-wheel-legged-dual \
+  --lock control-2027/deployments/infantry-wheel-legged-dual.lock.yaml
 ```
 
 compiler 执行以下已经落地的检查：
@@ -59,12 +60,17 @@ generated/
   nodes/<node>/node_config.hpp
   nodes/<node>/node_descriptor.cpp
   nodes/<node>/node_composition.hpp  # 仅在所有 Module 可组合时生成
+  nodes/<node>/node_hardware.hpp     # BSP 资源与类型化设备构造
+  nodes/<node>/firmware_entry.cpp    # MCU 启动、握手与有界主循环
+  nodes/<node>/CMakeLists.txt
+  nodes/<node>/CMakePresets.json
   reports/module_graph.json
   reports/routes.json
   reports/link_budget.yaml
   reports/executors.yaml
   reports/memory.yaml
   reports/composition.yaml
+  reports/firmware.yaml
 ```
 
 Node ID 与 Route ID 按名称确定性分配，并在后续编译中保留已有值。lock 同时记录整机
@@ -85,7 +91,12 @@ Module、固定容量 Executor、Parameter、局部端口/硬件名映射、周�
 `Configure` 注入整机 Port/Hardware registry；host 可以注入 fake，MCU glue 可以注入
 CAN/libxr adapter，而 Module 源码不变。
 
-缺 header、header 文件不存在、Module 没有 Executor，或多个 Executor 没指定唯一默认项
-时，不生成伪 `main` 或半套组合，原因写入 `composition.yaml`。真实 F4/H7 BSP resource
-构造、transport endpoint 图、FreeRTOS task 和芯片启动入口仍在迁移阶段；CAN-FD、量化
-codec、Linux/AimRT 输出属于后续里程碑。
+当 target BSP 提供 firmware integration metadata 时，compiler 还会生成
+`NodeHardware`、精确 CAN 接收范围、`firmware_entry.cpp` 和可直接交叉编译的 CMake
+工程。入口顺序固定为 BSP/设备初始化、CAN endpoint 绑定、Composition 配置与初始化、
+BSP/设备启动、跨板握手，最后才启动应用 Runtime。握手前仍周期发送 Relax/安全设备命令，
+不会等待另一块板时静默停止电机 watchdog。
+
+缺 header、实现 target、BSP integration metadata 或必须资源时，不生成半套可烧工程，
+原因写入 `composition.yaml`/`firmware.yaml`。当前 Dev C F4 与 MC02 H7 报告均为
+`ready: true`；CAN-FD、Linux/AimRT 输出属于后续里程碑。

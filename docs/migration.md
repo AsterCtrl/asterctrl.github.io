@@ -24,9 +24,12 @@ title: control-2026 迁移
 LQR 多项式系数、23 kg 质量、0.495 m 轮距、腿长范围和 75 ms 收腿保持均来自权威
 worktree。严格告警与 ASan/UBSan host 测试通过，完整控制周期有零动态分配断言。
 
-这仍不是“底盘已实机迁移完成”：DJI/达妙 adapter、MC02 固件入口和链接脚本尚未
-交付。旧工程平衡态 `PowerControl()` 当前被注释，因此新实现也没有虚构一个平衡功控；
-旧工程仍启用的卧倒轮电机功率限制尚待在规范化 adapter 之上迁移。
+DJI/达妙 adapter、MC02 固件入口和链接脚本已经进入完整 H7 ELF。旧工程平衡态
+`PowerControl()` 当前被注释，因此新实现也没有虚构一个平衡功控；仍启用的
+`PowerControl_Prostrate()` 已迁为 chassis-owned 六参数模型与超电策略，并通过
+`MotorGroup::Command::torque_limit_nm` 约束下一次 adapter 输出。模型统一使用
+`|I|/|omega|`，比旧 signed arithmetic 更保守但不逐位等价；它使用最新电机反馈而不是
+同一 C 函数中的私有 `final_output`。这仍需要实车功率/稳定性测试，不能称为闭环验收。
 
 ## 当前输入与协调切片
 
@@ -97,9 +100,9 @@ chassis 权威参数已配置为 pitch `180 deg`、三轴 scale `1`、杆臂
 新样本会停止姿态发布并重新预热，不能无限期沿用最后姿态。
 
 寄存器、带符号解析、安装矩阵、解析杆臂向心项、EKF 连续 yaw、失联恢复、Action、背压
-和完整周期零分配测试在严格告警与 ASan/UBSan 下通过。MC02 libxr bus adapter、设备构造
-注册、flash 参数持久化、真实录制数据回放和目标 timing 仍未完成，因此不能声称 IMU 已经
-实机验证。
+和完整周期零分配测试在严格告警与 ASan/UBSan 下通过。MC02/Dev C libxr bus adapter 与
+设备构造已分别进入 H7/F4 固件；flash 参数持久化、真实录制数据回放、安装方向和目标
+timing 仍未完成，因此不能声称 IMU 已经实机验证。
 
 ## 当前标准云台切片
 
@@ -142,9 +145,9 @@ TX 背压保留同一份 30 B 帧原样重试。发送状态要求 50 ms 内的�
 
 精确字面帧、degree/radian、任意分片、连续帧、垃圾恢复、非法域、超时、回拨时钟、四次
 读取上界、发布/TX 背压、陈旧云台和完整周期零动态分配测试已在严格告警与 ASan/UBSan
-下通过。Dev C profile 已把 `vision-link/srm-vcp` 绑定到 `usb_cdc1`，完整 F4 composition
-也已通过严格语法编译；真正的 libxr USB CDC adapter、固定 RX/TX 队列、设备构造、断线
-重枚举、上位机实录回放和目标固件链接仍未完成，因此当前结论仍不是可烧录验证。
+下通过。Dev C profile 已把 `vision-link/srm-vcp` 绑定到 `usb_cdc1`；libxr USB CDC
+adapter、固定 RX/TX 队列和设备构造已链接进 F4 固件。断线重枚举、上位机实录回放和
+真实 USB 时序仍未完成，因此结论是软件可烧，不是链路硬件验收。
 
 ## 当前裁判系统接收切片
 
@@ -160,8 +163,8 @@ Module 每 1 ms 最多读取四个 64 B 已排队字节块，更新在 20 Hz 合
 零动态分配测试。官方输出位被归一为 chassis、gimbal、shooter 的应用位序。
 
 严格告警、ASan/UBSan、协议字面向量、分片、丢字节、CRC 故障、序号间断、超时与错峰
-恢复测试均已通过。MC02 的 UART/libxr adapter、DMA 恢复和实机 2027 协议回放仍未完成，
-因此这里只能证明 host 行为与静态组合，不声称裁判系统已在硬件上验证。
+恢复测试均已通过。MC02 UART/libxr adapter 与设备构造已链接 H7；DMA 错误恢复和实机
+2027 协议回放仍未完成，因此不声称裁判系统已在硬件上验证。
 
 ## 当前裁判 UI 输出切片
 
@@ -180,8 +183,8 @@ libxr 或 RTOS 类型。固定 64 项队列保存轻量绘制动作，每次 dra
 完整布局保留相对方向、视觉框、地面引导线、两组五连杆及 BACK/FRONT 标签和腿长、
 九行状态、超电与速度。五连杆由可移植的虚拟腿长/角度和 body pitch 反解；不可解时发送
 黑色退化图形，不产生 NaN 坐标。重连、节流、背压、刷新序列、几何和完整周期零分配
-测试均通过。MC02 `referee/ui-writer` UART TX adapter、固定发送队列、DMA 完成语义和真实
-客户端视觉检查仍未完成，因此输出链路还不是可烧录结论。
+测试均通过。MC02 `referee/ui-writer` UART TX adapter 与固定发送路径已链接 H7；DMA
+完成/错误语义和真实客户端视觉检查仍未完成。
 
 ## 当前超电协议切片
 
@@ -189,7 +192,8 @@ libxr 或 RTOS 类型。固定 64 项队列保存轻量绘制动作，每次 dra
 `ShuSuperCapCanCodec` 按字面保留主控发送 ID `0x210`、超电遥测 ID `0x211`、八字节小端
 布局、mV 电压和 `0.01 W` 有符号输入/输出功率。SHU 帧没有 boost 字段，因此
 `SuperCapCommand.mode` 不会被擅自塞进保留字节；原 `SuperCapModeControl()` 的安全、
-被动、主动、充电状态和底盘功率分配仍待迁入 `chassis-wheel-legged`。
+被动、主动、充电状态和底盘功率预算已经迁入 `chassis-wheel-legged`。协议 Package 不
+拥有机器人功率策略。
 
 100 Hz Runtime Module 只依赖聚合 `SuperCapLink`。每周期最多取四条已排队遥测，并以
 20 Hz 发布最新状态；10 V/24 V 默认阈值按电容能量的电压平方计算百分比。命令缺失、
@@ -198,16 +202,15 @@ libxr 或 RTOS 类型。固定 64 项队列保存轻量绘制动作，每次 dra
 失败误记成已交付，新遥测会立即重使能在线发布。
 
 精确帧、负功率、协议范围、队列上界、20 Hz 合并、两类超时、恢复、I/O 故障、发布
-重试、Shutdown 和完整周期零分配均在严格告警与 ASan/UBSan 下通过。MC02 CAN2/libxr
-adapter、`supercap-ctrl/shu-can` 设备构造注册、与 DJI 轮电机过滤器共存、真实帧回放和
-目标链接仍未完成，因此当前结论仍是 host-verified，而不是可烧录验证。
+重试、Shutdown 和完整周期零分配均在严格告警与 ASan/UBSan 下通过。MC02 CAN1/libxr
+adapter、`supercap-ctrl/shu-can` 设备构造及与 DJI 轮电机共享 endpoint 已链接 H7。真实
+超电帧回放、bus-off 恢复和功率闭环仍需台架验证。
 
 ## 当前静态组合状态
 
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
 Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
-到达；缺实现的生产节点只生成 blocker 报告。当前 H7 的 BMI088、轮腿底盘、UI、裁判
-系统和超电，以及 F4 的 BMI088、DR16、VT13、视觉、输入、协调、云台和发射都已生成
-完整静态 composition，并通过严格语法编译。`ready` 只表示 portable Module 可被静态
-构造；Dev C/MC02 adapter、BSP 设备构造、transport endpoint、FreeRTOS entry、链接脚本
-和最终固件链接尚未生成，所以这不是“固件已经可链接”。
+到达。当前 H7 的 BMI088、轮腿底盘、UI、裁判系统和超电，以及 F4 的 BMI088、DR16、
+VT13、视觉、输入、协调、云台和发射都生成完整 composition、BSP 设备图、精确 CAN
+filter、FreeRTOS `app_main` 和固件 CMake 工程。两份 `firmware.yaml` 均为 `ready: true`，
+最终 ELF 无未解析符号并产出 `.hex/.bin/.map`。这证明软件构建闭合，不证明硬件闭环。

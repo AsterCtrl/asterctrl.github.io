@@ -15,6 +15,7 @@ module.exports = {
         'configuration/overview',
         'configuration/packages',
         'configuration/deployment',
+        'configuration/firmware',
       ],
     },
     {

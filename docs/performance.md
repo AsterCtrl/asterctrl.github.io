@@ -19,7 +19,16 @@ title: 性能与实时性
 | MC02 H7 chassis | 119472 | 6052 | 69512 |
 | C board F4 gimbal | 89832 | 2928 | 76920 |
 
-这些数字只是迁移比较基线，不是新框架已经达到的性能结果。
+目标固件当前链接结果为：
+
+| 节点 | Flash | RAM | text | data | bss |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| MC02 H7 chassis | 264656 | 97704 | 260920 | 3732 | 93960 |
+| C board F4 gimbal | 247472 | 101384 | 240216 | 7244 | 94136 |
+
+Flash 来自链接器 memory region，RAM 包含链接脚本保留的 heap/stack；`text/data/bss` 来自
+Arm GNU `size`，不能把两种口径混为一个百分比。F4 当前使用 77.35% 主 RAM，是首烧后
+必须继续测任务栈水位的主要资源风险。
 
 ## 已验证的控制路径约束
 
@@ -29,8 +38,13 @@ Topic 输入、双 `MotorGroup::Snapshot`、五连杆/LQR/VMC 计算、双组 `A
 UndefinedBehaviorSanitizer 下通过。
 
 这只证明该 host 路径没有动态分配和已检测的内存/未定义行为问题，不等价于 MCU
-WCET、栈上界或 deadline 已验证。周期耗时、MC02 RAM/栈与中断干扰必须由后续固件
-map、栈水位和目标板测量补齐。
+WCET、栈上界或 deadline 已验证。周期耗时、任务栈水位和中断干扰仍必须由目标板测量。
+
+当前测试还覆盖趴地功控的六参数估算/逆解、超电状态机、无上限透传、比例限流、
+NaN/零功率 fail-closed，以及最终 `torque_limit_nm` 到 Motor 命令的集成路径。Motor
+adapter 的测试直接解码 CAN，验证 `268/17` M3508 在 20 A 时约为 4.9256 Nm，并验证
+DJI 速度 PID 与 DM torque frame 都执行同一可移植上限。两组测试均通过严格告警和
+ASan/UBSan。
 
 `inf-wheel-legged-input` 也在全局 `operator new` 计数器下完成一次真实 Runtime Poll、
 周期 Executor、latest 输入映射、仲裁和 `RobotIntent` 发布，计数保持不变。其失败注入
@@ -47,6 +61,7 @@ map、栈水位和目标板测量补齐。
 和 writer 背压，但尚未测量 MC02 UART TX 队列高水位与 DMA 延迟。
 
 当前双板 deployment report 生成 F4 侧 8 个 Executor、声明栈 24,064 B，H7 侧 5 个
-Executor、声明栈 23,552 B。经典 CAN 1 Mbit/s 下语义 route 利用率为 0.2843，设备预留
-为 0.3000，总计 0.5843，低于 0.65 构建上限。该数值包含最坏 bit stuffing、帧间隔和
-当前 10 条跨板 route；它是静态上界报告，不是示波器实测总线占用。
+Executor、声明栈 23,552 B。经典 CAN 1 Mbit/s 下应用 route 利用率为 0.28430，握手/
+心跳/时间同步控制面为 0.02133，设备预留为 0.30000，总计 0.60563，低于 0.65 构建
+上限。该数值包含最坏 bit stuffing、帧间隔和当前 10 条跨板 route；它是静态上界报告，
+不是示波器实测总线占用。
