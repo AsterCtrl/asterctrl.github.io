@@ -45,3 +45,8 @@ DR16 和 VT13 Module 都把 hardware profile 中的逻辑 `uart` 解析为同一
 反馈与命令使用 SI 单位，组大小和逻辑顺序在初始化时校验。方向、CAN ID、协议帧和
 电流换算属于 adapter/hardware profile。轮腿底盘因此只依赖四关节组与两轮组；DJI、
 达妙和未来仿真 adapter 可以替换，而不会污染五连杆与 LQR 代码。
+
+`Feedback::fault_flags` 不直接泄漏厂商状态字。adapter 必须映射为统一的 `FaultFlag`：
+堵转、过温、过流、通信、编码器和驱动故障。执行器 Module 再按机构语义决定处理方式，
+例如发射拨盘可对堵转做一次有界退弹，但通信或驱动故障必须释放输出。尚未完成映射的
+adapter 不能把未知厂商故障默认为“无故障”。

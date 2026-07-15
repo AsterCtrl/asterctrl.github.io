@@ -59,11 +59,29 @@ Mapper、仲裁、状态机和真实 Runtime Module 测试在严格告警与 ASa
 测试覆盖输入失联、未选源隔离、Topic 背压和零动态分配。当前跳跃完成仍只使用 1.2 s
 权威超时兜底；底盘 jump FSM 完成反馈尚未进入消息契约，因此不能声称这一闭环已等价。
 
+## 当前发射切片
+
+`shoot-standard` 已把旧全局单例迁为 1 kHz Runtime Module。16 个生成参数显式保存
+SJTU 轮腿步兵的 3240 deg 拨盘电机步长、双摩擦轮 `+1/-1` 方向、37k rpm 基准与
+35k..39k 限幅、500/55 ms 单发/连发间隔、22.5 m/s 目标、弹速修正、前馈和单发热量。
+`friction_motor_count` 可在构建期改为 3，不需要源码条件编译。
+
+单发按模式进入沿推进一次；连发在 55 ms 到期前保持位置目标；显式反转按 500 ms
+退弹。每次正向推进前都检查新鲜裁判数据与旧实现的五/六发热量余量。实测弹速只作为
+反馈，协调器发送目标值 0 表示使用发射 Package 配置的 22.5 m/s，避免把实测值误当目标
+而令闭环误差恒为零。
+
+`MotorGroup::FaultFlag` 统一堵转、过温、过流、通信、编码器和驱动故障。拨盘堵转只触发
+一次锁存退弹；其他故障、反馈失联、命令超过 30 ms、快照或整组命令失败会同时
+`Relax()` 两组电机。严格告警、ASan/UBSan、两/三摩擦轮、热量边界、故障注入、发布
+背压和完整周期零分配测试已通过。旧代码直接修改 DJI 私有 `final_output` 的前馈被规范为
+有界速度参考偏置，因此仍需在 Dev C 实机上重新整定，不能据此声称发射机构已实机完成。
+
 ## 当前静态组合状态
 
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
 Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
-到达；缺实现的生产节点只生成 blocker 报告。当前 F4 blocker 为 gimbal、shoot、
+到达；缺实现的生产节点只生成 blocker 报告。当前 F4 blocker 为 gimbal 和
 vision-link，H7 blocker 为 BMI088、referee、supercap 和 infantry UI；BMI088 还需在
 两个 Executor 中声明唯一默认项。BSP、transport endpoint 和 FreeRTOS entry 尚未生成，
 所以这不是“固件已经可链接”。
