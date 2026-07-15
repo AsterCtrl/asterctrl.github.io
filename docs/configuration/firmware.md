@@ -62,7 +62,8 @@ xrobot_firmware_fault_code = (firmware_stage << 8) | runtime_status
 ## 2026-07-16 参考证据
 
 `infantry-wheel-legged-dual` 的两次独立生成逐文件一致，生成树 SHA-256 为
-`b478d87ad7e03fad480b41634bb3f6b3bddd6cddfbaf78550838558471052eee`。
+`f6571b52d0362777fb7aeae403b66130b268ff2ebd8e783ae8b7bd2ff2876700`，
+resolved deployment hash 为 `a23cc8bfbd79217af4f2496f4de2e9a2`。
 
 | Node | MCU | Flash | RAM | `text/data/bss` |
 | --- | --- | ---: | ---: | ---: |
