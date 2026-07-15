@@ -77,6 +77,30 @@ SJTU 轮腿步兵的 3240 deg 拨盘电机步长、双摩擦轮 `+1/-1` 方向�
 背压和完整周期零分配测试已通过。旧代码直接修改 DJI 私有 `final_output` 的前馈被规范为
 有界速度参考偏置，因此仍需在 Dev C 实机上重新整定，不能据此声称发射机构已实机完成。
 
+## 当前 BMI088 与姿态切片
+
+`bmi088` 没有沿用旧工程的 HAL 中间层，也没有照搬 QDU Module 在构造函数中重试、休眠
+和创建私有线程的做法。Runtime Module 只解析一个聚合 `Bmi088Sensor` 能力；具体 SPI、
+双片选、gyro data-ready 和 heater PWM 被压到 `Bmi088Bus` adapter seam，仿真传感器可以
+实现同一接口。公共头与热路径不包含 libxr、HAL、RTOS 或动态分配。
+
+驱动以单步状态机复位两个 die，按单调时间等待 80 ms，检查 `0x1e/0x0f` chip ID，并逐项
+写入、回读 6G/800 Hz accelerometer 与 2000 dps/2 kHz gyroscope 配置。每个完整 data-ready
+样本转换为 SI 单位并保留中断时间戳。1 kHz Module 在同一个生成 Executor 上完成旧工程的
+安装旋转、预标定 bias、杆臂补偿、100 帧重力预热、固定内存六状态 Quaternion EKF、运动
+加速度后处理与 500 Hz heater PI，不依赖任务之间的隐式顺序。
+
+chassis 权威参数已配置为 pitch `180 deg`、三轴 scale `1`、杆臂
+`0.15413/0.04612/0.09348 m`、gyro bias
+`0.00708952406/0.00323308632/0.00078589347 rad/s` 和目标温度 `40 degC`。非阻塞
+`CalibrateImu` Action 用在线均值/方差判稳，支持进度、取消和三参数回滚。超过 10 ms 无
+新样本会停止姿态发布并重新预热，不能无限期沿用最后姿态。
+
+寄存器、带符号解析、安装矩阵、解析杆臂向心项、EKF 连续 yaw、失联恢复、Action、背压
+和完整周期零分配测试在严格告警与 ASan/UBSan 下通过。MC02 libxr bus adapter、设备构造
+注册、flash 参数持久化、真实录制数据回放和目标 timing 仍未完成，因此不能声称 IMU 已经
+实机验证。
+
 ## 当前裁判系统接收切片
 
 `referee` 已把旧 UART 回调、全局缓冲区和 packed struct 解码迁为可移植 Runtime Module。
@@ -99,6 +123,5 @@ Module 每 1 ms 最多读取四个 64 B 已排队字节块，更新在 20 Hz 合
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
 Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
 到达；缺实现的生产节点只生成 blocker 报告。当前 F4 blocker 为 gimbal 和
-vision-link，H7 blocker 为 BMI088、supercap 和 infantry UI；BMI088 还需在
-两个 Executor 中声明唯一默认项。BSP、transport endpoint 和 FreeRTOS entry 尚未生成，
-所以这不是“固件已经可链接”。
+vision-link，H7 blocker 为 supercap 和 infantry UI。BSP、transport endpoint 和
+FreeRTOS entry 尚未生成，所以这不是“固件已经可链接”。
