@@ -50,3 +50,18 @@ DR16 和 VT13 Module 都把 hardware profile 中的逻辑 `uart` 解析为同一
 堵转、过温、过流、通信、编码器和驱动故障。执行器 Module 再按机构语义决定处理方式，
 例如发射拨盘可对堵转做一次有界退弹，但通信或驱动故障必须释放输出。尚未完成映射的
 adapter 不能把未知厂商故障默认为“无故障”。
+
+## SuperCapLink 契约
+
+`supercap-ctrl` 的 Runtime Module 只解析聚合 `SuperCapLink`，其 `Read()` 取出一条已经
+完成的带时间戳遥测，`Write()` 接受平台无关的功率上限、裁判缓冲能量、底盘输出状态和
+boost 请求。无完整遥测时返回 `kUnavailable`，不能在线程中阻塞等待下一帧。
+
+当前 SHU 自制超电 adapter 使用经典 CAN `0x210/0x211` 八字节协议。协议 codec 属于
+`supercap-ctrl` Package；CAN2 资源、接收过滤、ISR/DMA 到固定队列的交接和 libxr 发送
+完成语义属于 MC02 BSP adapter。仿真 adapter 可以直接实现同一 `SuperCapLink`，无需
+伪造 CAN 外设或修改 Module。
+
+`boost_requested` 是跨队伍的语义字段，不等于当前 SHU 帧中的一个 bit。SHU 协议没有
+该字段，codec 会明确忽略它；轮腿的主动、被动、充电和安全功率状态仍由底盘 Module
+拥有，不能下沉到通用硬件 adapter。

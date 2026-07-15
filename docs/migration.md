@@ -118,6 +118,25 @@ Module 每 1 ms 最多读取四个 64 B 已排队字节块，更新在 20 Hz 合
 恢复测试均已通过。MC02 的 UART/libxr adapter、DMA 恢复和实机 2027 协议回放仍未完成，
 因此这里只能证明 host 行为与静态组合，不声称裁判系统已在硬件上验证。
 
+## 当前超电协议切片
+
+`supercap-ctrl` 已把旧 `super_cap.c` 中的 SHU 自制超电 CAN 协议与机器人功率策略拆开。
+`ShuSuperCapCanCodec` 按字面保留主控发送 ID `0x210`、超电遥测 ID `0x211`、八字节小端
+布局、mV 电压和 `0.01 W` 有符号输入/输出功率。SHU 帧没有 boost 字段，因此
+`SuperCapCommand.mode` 不会被擅自塞进保留字节；原 `SuperCapModeControl()` 的安全、
+被动、主动、充电状态和底盘功率分配仍待迁入 `chassis-wheel-legged`。
+
+100 Hz Runtime Module 只依赖聚合 `SuperCapLink`。每周期最多取四条已排队遥测，并以
+20 Hz 发布最新状态；10 V/24 V 默认阈值按电容能量的电压平方计算百分比。命令缺失、
+非法或超过 100 ms 时，每个周期发送零功率、零 buffer、关闭输出的安全命令；Shutdown
+也尝试同一写入。遥测超过旧工程一致的 50 ms 后发布 bit 31 离线状态，Topic 背压不会把
+失败误记成已交付，新遥测会立即重使能在线发布。
+
+精确帧、负功率、协议范围、队列上界、20 Hz 合并、两类超时、恢复、I/O 故障、发布
+重试、Shutdown 和完整周期零分配均在严格告警与 ASan/UBSan 下通过。MC02 CAN2/libxr
+adapter、`supercap-ctrl/shu-can` 设备构造注册、与 DJI 轮电机过滤器共存、真实帧回放和
+目标链接仍未完成，因此当前结论仍是 host-verified，而不是可烧录验证。
+
 ## 当前静态组合状态
 
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
