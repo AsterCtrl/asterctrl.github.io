@@ -142,5 +142,6 @@ adapter、`supercap-ctrl/shu-can` 设备构造注册、与 DJI 轮电机过滤�
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
 Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
 到达；缺实现的生产节点只生成 blocker 报告。当前 F4 blocker 为 gimbal 和
-vision-link，H7 blocker 为 supercap 和 infantry UI。BSP、transport endpoint 和
+vision-link，H7 blocker 只剩 infantry UI。supercap 不再是组合 blocker 只表示其
+portable Module 可被静态构造；MC02 CAN adapter、BSP 设备构造、transport endpoint 和
 FreeRTOS entry 尚未生成，所以这不是“固件已经可链接”。
