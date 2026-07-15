@@ -18,6 +18,7 @@ Topic、Service、Action、Parameter、TypeSupport、transport backend 和配置
 | `execution_context.hpp` | thread/callback/interrupt 语义 |
 | `executor.hpp` | 无分配任务接口与统计 |
 | `cooperative_executor.hpp` | 定长串行 Executor |
+| `periodic_scheduler.hpp` | 固定容量周期调度、漏周期与背压统计 |
 | `type_support.hpp` | Schema Hash、类型描述与生成契约 |
 | `topic.hpp` | Publisher、Subscriber、静态 Topic 与 QoS |
 | `service.hpp` | 异步 Client、Server bind 与固定请求槽 |
