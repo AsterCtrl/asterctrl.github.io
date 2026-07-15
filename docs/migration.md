@@ -77,11 +77,28 @@ SJTU 轮腿步兵的 3240 deg 拨盘电机步长、双摩擦轮 `+1/-1` 方向�
 背压和完整周期零分配测试已通过。旧代码直接修改 DJI 私有 `final_output` 的前馈被规范为
 有界速度参考偏置，因此仍需在 Dev C 实机上重新整定，不能据此声称发射机构已实机完成。
 
+## 当前裁判系统接收切片
+
+`referee` 已把旧 UART 回调、全局缓冲区和 packed struct 解码迁为可移植 Runtime Module。
+固定 137 B 的 `RefereeDecoder` 接受任意 UART 分片，扫描 `0xA5`，验证官方反射 CRC8 与
+CRC16，并在坏校验、丢字节和超长声明后恢复下一候选帧。当前只解码轮腿控制实际消费的
+机器人状态 `0x0201`、功率/热量 `0x0202` 和射击数据 `0x0207`，未知合法命令仅计入链路
+活性，不扩张消息契约。
+
+Module 每 1 ms 最多读取四个 64 B 已排队字节块，更新在 20 Hz 合并发布。只有机器人状态
+与功率/热量各自都在 300 ms 内新鲜时才发布在线快照；可选弹速或未知帧不能掩盖任一必需
+类别过期。启动和超时发布全零安全状态，Topic 背压时下一周期重试；解析和发布热路径有
+零动态分配测试。官方输出位被归一为 chassis、gimbal、shooter 的应用位序。
+
+严格告警、ASan/UBSan、协议字面向量、分片、丢字节、CRC 故障、序号间断、超时与错峰
+恢复测试均已通过。MC02 的 UART/libxr adapter、DMA 恢复和实机 2027 协议回放仍未完成，
+因此这里只能证明 host 行为与静态组合，不声称裁判系统已在硬件上验证。
+
 ## 当前静态组合状态
 
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
 Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
 到达；缺实现的生产节点只生成 blocker 报告。当前 F4 blocker 为 gimbal 和
-vision-link，H7 blocker 为 BMI088、referee、supercap 和 infantry UI；BMI088 还需在
+vision-link，H7 blocker 为 BMI088、supercap 和 infantry UI；BMI088 还需在
 两个 Executor 中声明唯一默认项。BSP、transport endpoint 和 FreeRTOS entry 尚未生成，
 所以这不是“固件已经可链接”。
