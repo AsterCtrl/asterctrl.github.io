@@ -119,6 +119,33 @@ apply 失败都会同时释放两轴。只有姿态和两轴反馈都有效时�
 pitch 限位、非法枚举、背压、Shutdown 和完整周期零分配。Dev C BMI088 与 DJI adapter、
 ECD 5010/4215 零位、方向、真实轨迹和目标 timing 仍需硬件验证。
 
+## 当前视觉链路切片
+
+`vision-link` 保留当前轮腿步兵实际启用的 USB CDC VCP 兼容协议，而不是未完成的 Seasky
+UART 分支。上位机到机器人固定为 18 B 小端帧：body length `16`、record ID `1`、yaw 和
+pitch 两个 IEEE-754 degree 值、record ID `2` 和 `int32` fire `0/1`。机器人到上位机固定为
+30 B：body length `28`、record ID `1`、yaw/pitch/roll degree、work mode `0`、旧 `color`
+字段中的 robot ID、record ID `2` 和实测弹速。codec 边界负责 degree/radian 转换，控制消息
+内部仍只使用 SI 单位。
+
+旧格式没有 magic、版本、序号、时间戳或 CRC，不能被称为可靠的新协议。固定 64 B decoder
+只能通过精确长度、唯一 record ID、有限数值范围和 fire 物理域拒绝坏帧，并在任意分片、
+粘包或垃圾前缀中做有界逐字节重同步。未来 protocol v1 必须增加 magic、显式协议/Schema
+版本、payload length、消息种类、序号、source timestamp 与 CRC，并通过配置或握手选择兼容
+模式；禁止靠猜测在 v0/v1 之间切换，也不能静默改变现有 18/30 B wire contract。
+
+Runtime Module 每 5 ms 最多从 `VisionTransport` 读取四个 64 B 块，只让完整合法帧刷新
+50 ms 在线看门狗。超时后发布一次显式 `tracking=false, fire=false`；Topic 背压保留最新目标，
+TX 背压保留同一份 30 B 帧原样重试。发送状态要求 50 ms 内的新鲜 `GimbalState`，使用
+300 ms 内的新鲜 `RefereeState` 弹速，否则采用配置的 `22 m/s` fallback。视觉 Module 不再
+初始化或持有 INS，只订阅最终云台与裁判状态。
+
+精确字面帧、degree/radian、任意分片、连续帧、垃圾恢复、非法域、超时、回拨时钟、四次
+读取上界、发布/TX 背压、陈旧云台和完整周期零动态分配测试已在严格告警与 ASan/UBSan
+下通过。Dev C profile 已把 `vision-link/srm-vcp` 绑定到 `usb_cdc1`，完整 F4 composition
+也已通过严格语法编译；真正的 libxr USB CDC adapter、固定 RX/TX 队列、设备构造、断线
+重枚举、上位机实录回放和目标固件链接仍未完成，因此当前结论仍不是可烧录验证。
+
 ## 当前裁判系统接收切片
 
 `referee` 已把旧 UART 回调、全局缓冲区和 packed struct 解码迁为可移植 Runtime Module。
@@ -180,7 +207,7 @@ adapter、`supercap-ctrl/shu-can` 设备构造注册、与 DJI 轮电机过滤�
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
 Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
 到达；缺实现的生产节点只生成 blocker 报告。当前 H7 的 BMI088、轮腿底盘、UI、裁判
-系统和超电已生成完整静态 composition，并通过严格语法编译；F4 的云台实现已可组合，
-目前只被 vision-link 缺失 implementation header 阻塞。H7 `ready` 只表示 portable
-Module 可被静态构造，MC02 adapter、BSP 设备构造、transport endpoint、FreeRTOS entry、
-链接脚本和最终固件链接尚未生成，所以这不是“固件已经可链接”。
+系统和超电，以及 F4 的 BMI088、DR16、VT13、视觉、输入、协调、云台和发射都已生成
+完整静态 composition，并通过严格语法编译。`ready` 只表示 portable Module 可被静态
+构造；Dev C/MC02 adapter、BSP 设备构造、transport endpoint、FreeRTOS entry、链接脚本
+和最终固件链接尚未生成，所以这不是“固件已经可链接”。

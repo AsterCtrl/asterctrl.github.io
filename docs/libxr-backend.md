@@ -34,6 +34,19 @@ DR16 和 VT13 Module 都把 hardware profile 中的逻辑 `uart` 解析为同一
 协议解析源码不变。该能力契约解决的是 I/O 可移植性；波特率、奇偶校验、DMA 和引脚仍
 属于 BSP 与 hardware profile。
 
+## VisionTransport 契约
+
+视觉链路需要同时接收任意字节分片和发送一条不可拆分重试的完整状态帧，因此使用聚合
+`VisionTransport`，不把 USB CDC 或 UART 类型暴露给 Module。`Read()` 只复制已经进入
+有界 RX 路径的字节，并返回该块完成时间；无数据立即返回 `kUnavailable`。`Write()` 成功
+只表示完整帧已复制进固定 TX 路径，不表示 USB packet、DMA 或物理发送已经完成。队列满
+必须返回背压，调用方保留同一帧后重试，adapter 不得保存调用方 span。
+
+Dev C hardware profile 可把这一能力绑定到 `usb_cdc1`，host replay、仿真或其他板也可
+实现同一接口。真正的 adapter 仍必须定义固定 RX/TX 队列、ISR/USB callback 的有界交接、
+accepted 与 completed 状态、断线清队列和重枚举行为；这些平台语义不能由兼容协议 codec
+或应用 Module 猜测。
+
 ## MotorGroup 契约
 
 `motor` Package 的 `MotorGroup` 提供三个有界操作：
