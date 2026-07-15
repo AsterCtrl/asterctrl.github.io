@@ -118,6 +118,26 @@ Module 每 1 ms 最多读取四个 64 B 已排队字节块，更新在 20 Hz 合
 恢复测试均已通过。MC02 的 UART/libxr adapter、DMA 恢复和实机 2027 协议回放仍未完成，
 因此这里只能证明 host 行为与静态组合，不声称裁判系统已在硬件上验证。
 
+## 当前裁判 UI 输出切片
+
+`referee` Package 现在同时提供平台无关的 `RefereeUiCommand`、`RefereeUiWriter` 和官方
+`0x0301` codec。删除、文字以及 1/2/5/7 图形批次都使用固定容量；单帧最大 120 B。
+96-bit 图形描述符按明确位偏移编码，不使用编译器 packed bitfield。精确 30 B 字面向量、
+CRC、非法字段、所有合法批次和输出容量测试在严格告警与 ASan/UBSan 下通过。
+
+`inf-wheel-legged-ui` 只订阅生成消息并解析一个 `RefereeUiWriter`，不接触 UART、DMA、
+libxr 或 RTOS 类型。固定 64 项队列保存轻量绘制动作，每次 draw 周期最多提交一个完整
+命令，默认写入上限 10 Hz；writer 背压时原命令原样保留并重试。裁判身份缺失或超过
+300 ms 时不发送，重连、30 s 看门狗或递增的 `ui_refresh_sequence` 都从 delete-all
+重新开始。序列字段让 F4 上一拍 B 键事件经过 20 Hz latest-only 跨板 route 后仍可观察，
+持续按住不会反复触发。
+
+完整布局保留相对方向、视觉框、地面引导线、两组五连杆及 BACK/FRONT 标签和腿长、
+九行状态、超电与速度。五连杆由可移植的虚拟腿长/角度和 body pitch 反解；不可解时发送
+黑色退化图形，不产生 NaN 坐标。重连、节流、背压、刷新序列、几何和完整周期零分配
+测试均通过。MC02 `referee/ui-writer` UART TX adapter、固定发送队列、DMA 完成语义和真实
+客户端视觉检查仍未完成，因此输出链路还不是可烧录结论。
+
 ## 当前超电协议切片
 
 `supercap-ctrl` 已把旧 `super_cap.c` 中的 SHU 自制超电 CAN 协议与机器人功率策略拆开。
@@ -141,7 +161,8 @@ adapter、`supercap-ctrl/shu-can` 设备构造注册、与 DJI 轮电机过滤�
 
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
 Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
-到达；缺实现的生产节点只生成 blocker 报告。当前 F4 blocker 为 gimbal 和
-vision-link，H7 blocker 只剩 infantry UI。supercap 不再是组合 blocker 只表示其
-portable Module 可被静态构造；MC02 CAN adapter、BSP 设备构造、transport endpoint 和
-FreeRTOS entry 尚未生成，所以这不是“固件已经可链接”。
+到达；缺实现的生产节点只生成 blocker 报告。当前 H7 的 BMI088、轮腿底盘、UI、裁判
+系统和超电已生成完整静态 composition，并通过严格语法编译；F4 仍被 gimbal 和
+vision-link 缺失 implementation header 阻塞。H7 `ready` 只表示 portable Module 可被
+静态构造，MC02 adapter、BSP 设备构造、transport endpoint、FreeRTOS entry、链接脚本和
+最终固件链接尚未生成，所以这不是“固件已经可链接”。

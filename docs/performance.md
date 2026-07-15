@@ -41,7 +41,12 @@ map、栈水位和目标板测量补齐。
 周期完成，而不会突破预算。协议测试覆盖错位/丢字节恢复、CRC 或物理域错误、100 ms
 失联、读取失败和离线发布背压；它们没有测量目标 MCU 上的 UART 队列高水位或 WCET。
 
-当前双板 deployment report 生成 F4 侧 7 个 Executor、声明栈 17,920 B，H7 侧 6 个
-Executor、声明栈 24,576 B。经典 CAN 1 Mbit/s 下语义 route 利用率为 0.2839，设备预留
-为 0.3000，总计 0.5839，低于 0.65 构建上限。该数值包含最坏 bit stuffing、帧间隔和
+`inf-wheel-legged-ui` 的完整绘制也在全局分配计数器下保持零动态分配。其 64 项固定队列
+存储绘制动作而不是 120 B 完整帧；每个 50 ms Executor 周期最多准备或重试一条命令，
+`refresh_hz=10` 进一步限制 UART 接受速率。该测试覆盖完整重绘、无效五连杆、裁判重连
+和 writer 背压，但尚未测量 MC02 UART TX 队列高水位与 DMA 延迟。
+
+当前双板 deployment report 生成 F4 侧 7 个 Executor、声明栈 17,920 B，H7 侧 5 个
+Executor、声明栈 23,552 B。经典 CAN 1 Mbit/s 下语义 route 利用率为 0.2843，设备预留
+为 0.3000，总计 0.5843，低于 0.65 构建上限。该数值包含最坏 bit stuffing、帧间隔和
 当前 10 条跨板 route；它是静态上界报告，不是示波器实测总线占用。

@@ -65,3 +65,15 @@ boost 请求。无完整遥测时返回 `kUnavailable`，不能在线程中阻�
 `boost_requested` 是跨队伍的语义字段，不等于当前 SHU 帧中的一个 bit。SHU 协议没有
 该字段，codec 会明确忽略它；轮腿的主动、被动、充电和安全功率状态仍由底盘 Module
 拥有，不能下沉到通用硬件 adapter。
+
+## RefereeUiWriter 契约
+
+机器人专属 UI 只生成固定容量的 `RefereeUiCommand`。`referee` Package 的 codec 负责
+官方交互数据头、96-bit 图形字段、CRC 和最大 120 B 帧；MC02 adapter 才负责 libxr
+UART、固定 TX 队列、DMA 生命周期和序号。这样 UI Module 可以在 host fake、仿真 writer
+或真实串口之间替换，而不修改布局代码。
+
+`Write()` 成功只表示一条完整命令已被有界发送路径接受，不表示 DMA 或物理发送已经
+完成；队列满必须返回明确背压，调用方保留同一条命令后重试。adapter 不得保存调用方
+buffer 的引用，也不得在 UI Executor 中等待串口。Shutdown、DMA 错误、序号推进和重连
+后的旧队列清理仍需由 MC02 adapter 的目标测试确定。
