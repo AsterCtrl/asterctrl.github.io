@@ -53,5 +53,10 @@ Node ID 与 Route ID 按名称确定性分配，并在后续编译中保留已�
 deployment hash、Schema hash、类型 hash、协议版本和 backend 版本。删除或重命名 Node
 属于身份变化，不应被 hostname 或板型名称隐式代替。
 
-当前生成入口已参与 host 编译测试，但完整 Module 构造和 F4/H7 toolchain 目标仍在迁移
-阶段；CAN-FD、量化 codec、Linux/AimRT 输出属于后续里程碑。
+`node_config.hpp` 已生成 `kModules`、`kExecutors` 和 `kRoutes`。Executor 表使用
+`<instance>__<task>` 唯一名称，并固定 priority、stack、queue、period 与 exclusive；
+生成的 `consteval` 校验会拒绝重复任务名、空容量和不存在的所属实例。生成入口与这些
+表一起参与严格 host 编译。
+
+完整 concrete Module 构造、端口对象、参数对象和 F4/H7 BSP task 仍在迁移阶段；
+CAN-FD、量化 codec、Linux/AimRT 输出属于后续里程碑。
