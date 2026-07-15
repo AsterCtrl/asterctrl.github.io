@@ -29,6 +29,22 @@ compiler 执行以下已经落地的检查：
 5. 跨 Node route 有且只有一条物理 Link；多路径时必须显式 `via`。
 6. route 匹配 QoS，控制流声明 rate、deadline、max age、stale 和 re-arm。
 7. classic CAN 按实际分片、CRC 前位区间最坏 bit stuffing 和 intermission 计算预算。
+8. instance 参数名称来自对应 `module.yaml`，值必须匹配标量类型、存储上界和声明范围。
+
+启动参数写在 Robot instance，而不是硬编码进 Module：
+
+```yaml
+infantry_input:
+  package: inf-wheel-legged-input
+  module: inf-wheel-legged-input
+  parameters:
+    input_source: 1       # 0 = DR16, 1 = VT13
+    input_timeout_ms: 100
+```
+
+未配置的参数采用 manifest 默认值；未知名称、`bool` 冒充整数、越界值、NaN 和无法表示
+为 `float32` 的值都会使 deployment compile 失败。compiler 会先把 `float32` 规约为实际
+IEEE 754 值，因此 host 报告与 MCU 常量不会因 Python double 的额外精度产生差异。
 
 一个 fast 单帧保留 1-byte sequence；分片帧保留 2-byte sequence/fragment header。预算还
 叠加 `reserved_bandwidth`，用于 DJI 电机、超电等非框架既有流量。总利用率超过 Link
@@ -53,10 +69,13 @@ Node ID 与 Route ID 按名称确定性分配，并在后续编译中保留已�
 deployment hash、Schema hash、类型 hash、协议版本和 backend 版本。删除或重命名 Node
 属于身份变化，不应被 hostname 或板型名称隐式代替。
 
-`node_config.hpp` 已生成 `kModules`、`kExecutors` 和 `kRoutes`。Executor 表使用
+`node_config.hpp` 已生成 `kModules`、`kExecutors`、`kRoutes` 和五张按类型分组的参数
+表。参数表包含 instance、名称、单位、解析值、上下界、mutability 和 persistence；浮点
+值以精确 IEEE 754 bit pattern 生成，MCU 不需要解析 YAML 或字符串。Executor 表使用
 `<instance>__<task>` 唯一名称，并固定 priority、stack、queue、period 与 exclusive；
-生成的 `consteval` 校验会拒绝重复任务名、空容量和不存在的所属实例。生成入口与这些
-表一起参与严格 host 编译。
+生成的 `consteval` 校验会拒绝重复任务名、空容量、越界参数和不存在的所属实例。参数
+默认值也写入 `module_graph.json`，数量与纯 value 字节进入 memory report。生成入口与
+这些表一起参与严格 host 编译。
 
-完整 concrete Module 构造、端口对象、参数对象和 F4/H7 BSP task 仍在迁移阶段；
+完整 concrete Module 构造、端口对象、Runtime 参数对象和 F4/H7 BSP task 仍在迁移阶段；
 CAN-FD、量化 codec、Linux/AimRT 输出属于后续里程碑。

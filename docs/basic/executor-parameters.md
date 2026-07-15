@@ -54,3 +54,9 @@ ISR 不得直接 Poll。
 每次写入先检查执行上下文、阶段和范围，再调用可选业务校验回调。回调拒绝时旧值与
 revision 保持不变。ISR 修改参数始终被拒绝。运行期可调不等于任意 YAML 热重载；只有
 进入静态参数表且声明为 `kRuntime` 的标量才能修改。
+
+deployment compiler 会把 Robot instance 中的覆盖值和 `module.yaml` 默认值合并，在 host
+阶段完成名称、类型、范围、有限浮点和 `float32` 表示性校验。生成结果按 `bool`、
+`int32`、`uint32`、`float32` 和 `float64` 分表，保留 mutability 与 persistence，供后续
+composition 直接构造固定容量的 `Parameter<T>` 与 `StaticParameterRegistry<N>`。这一步
+不意味着 MCU 支持加载 YAML；YAML 只存在于构建主机。
