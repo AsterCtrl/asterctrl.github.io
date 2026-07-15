@@ -58,3 +58,12 @@ yaw 前馈分字段传递；物理扳机显式绕过视觉门控，鼠标仍服�
 Mapper、仲裁、状态机和真实 Runtime Module 测试在严格告警与 ASan/UBSan 下通过，周期
 测试覆盖输入失联、未选源隔离、Topic 背压和零动态分配。当前跳跃完成仍只使用 1.2 s
 权威超时兜底；底盘 jump FSM 完成反馈尚未进入消息契约，因此不能声称这一闭环已等价。
+
+## 当前静态组合状态
+
+deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
+Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
+到达；缺实现的生产节点只生成 blocker 报告。当前 F4 blocker 为 gimbal、shoot、
+vision-link，H7 blocker 为 BMI088、referee、supercap 和 infantry UI；BMI088 还需在
+两个 Executor 中声明唯一默认项。BSP、transport endpoint 和 FreeRTOS entry 尚未生成，
+所以这不是“固件已经可链接”。

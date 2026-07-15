@@ -57,12 +57,14 @@ generated/
   deployment.resolved.yaml
   deployment.lock.yaml
   nodes/<node>/node_config.hpp
-  nodes/<node>/generated_main.cpp
+  nodes/<node>/node_descriptor.cpp
+  nodes/<node>/node_composition.hpp  # 仅在所有 Module 可组合时生成
   reports/module_graph.json
   reports/routes.json
   reports/link_budget.yaml
   reports/executors.yaml
   reports/memory.yaml
+  reports/composition.yaml
 ```
 
 Node ID 与 Route ID 按名称确定性分配，并在后续编译中保留已有值。lock 同时记录整机
@@ -74,8 +76,16 @@ deployment hash、Schema hash、类型 hash、协议版本和 backend 版本。�
 值以精确 IEEE 754 bit pattern 生成，MCU 不需要解析 YAML 或字符串。Executor 表使用
 `<instance>__<task>` 唯一名称，并固定 priority、stack、queue、period 与 exclusive；
 生成的 `consteval` 校验会拒绝重复任务名、空容量、越界参数和不存在的所属实例。参数
-默认值也写入 `module_graph.json`，数量与纯 value 字节进入 memory report。生成入口与
-这些表一起参与严格 host 编译。
+默认值也写入 `module_graph.json`，数量与纯 value 字节进入 memory report。
 
-完整 concrete Module 构造、端口对象、Runtime 参数对象和 F4/H7 BSP task 仍在迁移阶段；
-CAN-FD、量化 codec、Linux/AimRT 输出属于后续里程碑。
+`node_descriptor.cpp` 只验证这些静态表，明确不是 firmware entry。若节点内所有 Package
+都提供真实 implementation header，compiler 另外生成 `NodeComposition`：它静态拥有
+Module、固定容量 Executor、Parameter、局部端口/硬件名映射、周期调度器和 Runtime，
+并提供 `Configure -> Initialize -> Start` 生命周期及按索引运行 Executor 的接口。
+`Configure` 注入整机 Port/Hardware registry；host 可以注入 fake，MCU glue 可以注入
+CAN/libxr adapter，而 Module 源码不变。
+
+缺 header、header 文件不存在、Module 没有 Executor，或多个 Executor 没指定唯一默认项
+时，不生成伪 `main` 或半套组合，原因写入 `composition.yaml`。真实 F4/H7 BSP resource
+构造、transport endpoint 图、FreeRTOS task 和芯片启动入口仍在迁移阶段；CAN-FD、量化
+codec、Linux/AimRT 输出属于后续里程碑。

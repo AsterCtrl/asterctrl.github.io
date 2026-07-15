@@ -27,6 +27,7 @@ Topic、Service、Action、Parameter、TypeSupport、transport backend 和配置
 | `parameter.hpp` | 参数权限、范围、revision 与校验回调 |
 | `port_registry.hpp` | seal 后只读的 schema-safe 静态端口表 |
 | `parameter_registry.hpp` | seal 后只读的类型安全参数表 |
+| `mapped_resolver.hpp` | 生成式局部端口/硬件名到整机 registry 的静态映射 |
 | `runtime_services.hpp` | Clock、Log、Diagnostics 平台无关接口 |
 | `legacy_module_adapter.hpp` | 旧对象 lifecycle hook 适配 |
 | `byte_reader.hpp` | 非阻塞、有界、显式状态的已排队 RX 字节读取能力 |

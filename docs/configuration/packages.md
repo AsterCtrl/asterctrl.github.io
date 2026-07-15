@@ -23,6 +23,10 @@ spec:
 
 ```yaml
 spec:
+  implementation:
+    target: chassis_wheel_legged
+    class: srm::chassis::WheelLeggedChassis
+    header: srm/chassis/wheel_legged/wheel_legged_chassis.hpp
   ports:
     - name: motion_command
       kind: subscriber
@@ -35,6 +39,11 @@ spec:
       queue_depth: 8
       period_us: 1000
 ```
+
+`implementation.header` 是 Package 导出的可编译 C++ header，不是 workspace 猜出的文件
+名；生成组合按统一约定以 instance 名构造该 Module。只有一个 Executor 时它自动成为
+ModuleContext 默认 Executor。声明多个 Executor 时必须恰好给一个添加 `default: true`，
+周期任务仍分别按自己的 `period_us` 绑定。
 
 `robot.yaml` 创建实例并把端口绑定到逻辑名称，`deployment.yaml` 再决定实例落在哪个
 Node。跨板 Route、CAN ID 与 transport adapter 都由 compiler 生成，Module 不包含

@@ -69,6 +69,11 @@ Status Chassis::Initialize(ModuleContext& context) noexcept {
 `MotorGroup` 的平台无关能力接口，不是 CAN handle 或具体驱动对象。硬件表没有动态
 发现、运行期新增或字符串工厂语义。
 
+生成节点使用 `MappedPortResolver` 和 `MappedHardwareResolver` 把 Module 局部名映射为
+robot/hardware profile 中的整机名。映射只保存固定 `span<NameMapping>`，不拥有端点也不
+分配内存；改名后仍由上游 registry 校验 Port kind、Schema Hash 或硬件 `TypeName()`。
+因此它不是弱类型 service locator，而是部署编译结果的一部分。
+
 `ModuleContext` 与 `ExecutionContext` 不可混用：前者回答“这个 Module 能使用什么”，
 后者回答“当前代码正在线程、回调还是中断中执行”。日志、诊断、发布和参数修改都应
 传入当前 `ExecutionContext`。
