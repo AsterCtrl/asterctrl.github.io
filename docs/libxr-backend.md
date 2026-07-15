@@ -51,6 +51,11 @@ DR16 和 VT13 Module 都把 hardware profile 中的逻辑 `uart` 解析为同一
 例如发射拨盘可对堵转做一次有界退弹，但通信或驱动故障必须释放输出。尚未完成映射的
 adapter 不能把未知厂商故障默认为“无故障”。
 
+标准云台在 Module 内完成使用 `AttitudeState` 的角度外环，只把两个 rad/s 参考交给
+单元素 `MotorGroup`。DJI adapter 负责 GM6020 内层速度 PID、raw current 与 SI 的换算、
+命令方向、编码器方向和零位。当前 Dev C profile 保存 legacy ECD 5010/4215 与内环参数，
+但方向归一和真实机构响应在 adapter 目标测试完成前仍是待验证项。
+
 ## SuperCapLink 契约
 
 `supercap-ctrl` 的 Runtime Module 只解析聚合 `SuperCapLink`，其 `Read()` 取出一条已经

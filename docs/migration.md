@@ -101,6 +101,24 @@ chassis 权威参数已配置为 pitch `180 deg`、三轴 scale `1`、杆臂
 注册、flash 参数持久化、真实录制数据回放和目标 timing 仍未完成，因此不能声称 IMU 已经
 实机验证。
 
+## 当前标准云台切片
+
+`gimbal-standard` 已拆成纯角度外环和 Runtime Module。视觉目标只由协调器解释一次，
+云台消费最终 `GimbalCommand`；C 板 BMI088 作为独立 Module 发布 `AttitudeState`，云台
+不再持有 INS、SPI 或板级句柄。两轴执行器统一为单元素 `MotorGroup`，因此 host fake、
+DJI adapter 和仿真实现使用同一控制源码。
+
+手瞄 yaw `0.4/0/0.02`、自瞄 yaw `2.5/0/0.04` 和 pitch `1.5/0/0.02` 的 legacy
+degree-domain 增益已按 `180/pi` 等价换算到 rad-domain；保留测量微分、最近圈 yaw 展开、
+旋转速度前馈和 `-30..25 deg` pitch 限位。外环在生成的 200 Hz Executor 运行并输出有界
+rad/s 参考，GM6020 内层速度 PID 属于 DJI adapter，不下沉板级类型到 Module。
+
+命令超过 30 ms、姿态超过 20 ms、任一电机反馈超过 20 ms、故障、NaN、snapshot 或
+apply 失败都会同时释放两轴。只有姿态和两轴反馈都有效时才发布测量状态，避免下游把
+默认零值当作新鲜反馈。严格告警与 ASan/UBSan 测试覆盖 manual/vision 数值、跨 ±pi、
+pitch 限位、非法枚举、背压、Shutdown 和完整周期零分配。Dev C BMI088 与 DJI adapter、
+ECD 5010/4215 零位、方向、真实轨迹和目标 timing 仍需硬件验证。
+
 ## 当前裁判系统接收切片
 
 `referee` 已把旧 UART 回调、全局缓冲区和 packed struct 解码迁为可移植 Runtime Module。
@@ -162,7 +180,7 @@ adapter、`supercap-ctrl/shu-can` 设备构造注册、与 DJI 轮电机过滤�
 deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
 Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
 到达；缺实现的生产节点只生成 blocker 报告。当前 H7 的 BMI088、轮腿底盘、UI、裁判
-系统和超电已生成完整静态 composition，并通过严格语法编译；F4 仍被 gimbal 和
-vision-link 缺失 implementation header 阻塞。H7 `ready` 只表示 portable Module 可被
-静态构造，MC02 adapter、BSP 设备构造、transport endpoint、FreeRTOS entry、链接脚本和
-最终固件链接尚未生成，所以这不是“固件已经可链接”。
+系统和超电已生成完整静态 composition，并通过严格语法编译；F4 的云台实现已可组合，
+目前只被 vision-link 缺失 implementation header 阻塞。H7 `ready` 只表示 portable
+Module 可被静态构造，MC02 adapter、BSP 设备构造、transport endpoint、FreeRTOS entry、
+链接脚本和最终固件链接尚未生成，所以这不是“固件已经可链接”。
