@@ -3,7 +3,11 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": [
+      "@docusaurus/module-type-aliases",
+      "@docusaurus/theme-classic"
+    ]
   },
   "include": ["docusaurus.config.js", "sidebars.js", "src/**/*"]
 }
