@@ -4,9 +4,13 @@ slug: /
 title: AsterCtrl 概览
 ---
 
-AsterCtrl 是面向资源受限 MCU、Linux 进程和仿真环境的分布式控制框架。应用开发者使用
-同一套 Module、Topic、Service、Action 和 Parameter API 描述控制行为；部署编译器
-根据目标配置决定模块运行位置、本地或远端路由、固定内存和平台适配。
+AsterCtrl 是面向资源受限 MCU、Linux 进程和仿真环境的分布式控制框架。它把“系统做什么”
+和“这些行为在哪里运行”分成 Application 与 Deployment 两张图，再在构建期生成每个逻辑
+Node 的运行组合、静态路由、资源预算和版本锁。
+
+应用开发者使用同一套 Module、Topic、Service、Action 和 Parameter API 描述控制行为；
+部署编译器根据目标配置决定模块运行位置、本地或远端路由、固定内存和平台适配。硬件、
+操作系统或进程边界因此不需要成为业务分支。
 
 ```text
 Application graph + Deployment + Target profiles
@@ -38,7 +42,7 @@ libxr backend 和固件生成链路已有可执行测试。生产级 Linux Runti
 
 ## 从哪里开始
 
-1. 阅读[设计思想](./concept.md)理解实时性边界。
+1. 阅读[设计思想](./concept.md)理解 Application、Deployment 与运行时去中心化。
 2. 按[环境配置](./setup.md)建立第一个 workspace。
 3. 通过[基础编程](./basic/module.md)实现 Module。
 4. 使用[Deployment](./configuration/deployment.md)把逻辑映射到目标节点。
