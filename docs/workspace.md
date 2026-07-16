@@ -9,6 +9,7 @@ Workspace 是一个机器人产品或产品族的组合仓库。它保存应用�
 api_version: aster.dev/v1alpha1
 kind: Workspace
 metadata: {name: warehouse-robot}
+interfaces: {package: robot-interfaces, path: schemas}
 packages:
   - name: aster-runtime
     source: {type: git, url: https://github.com/aster-robotics/aster-runtime.git}
@@ -16,7 +17,8 @@ packages:
     source: {type: path, path: ../drive-control}
 ```
 
-`package.lock.yaml` 固定 Git commit、内容摘要和依赖闭包，使 CI、不同开发者和发布构建
+`interfaces` 指定整机公共 Schema Package，不要求使用固定包名。`package.lock.yaml`
+固定 Git commit、内容摘要和依赖闭包，使 CI、不同开发者和发布构建
 解析到同一组输入。本地 path source 适合联合开发，发布 profile 应使用可追踪版本。
 
 ## 如何划分 Package
