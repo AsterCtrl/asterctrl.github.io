@@ -1,13 +1,13 @@
 // @ts-check
 
 const config = {
-  title: 'XRobot Distributed Framework',
-  tagline: 'Static, bounded, cross-platform robot runtime',
+  title: 'Aster',
+  tagline: 'Build robot logic once. Deploy it anywhere.',
   favicon: 'img/favicon.svg',
-  url: 'https://shu-robomaster.github.io',
-  baseUrl: '/xrobot-docs/',
-  organizationName: 'shu-robomaster',
-  projectName: 'xrobot-docs',
+  url: 'https://aster-robotics.github.io',
+  baseUrl: '/aster-docs/',
+  organizationName: 'aster-robotics',
+  projectName: 'aster-docs',
   onBrokenLinks: 'throw',
   markdown: {
     hooks: {
@@ -45,9 +45,9 @@ const config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'XRobot Distributed',
+      title: 'Aster',
       logo: {
-        alt: 'XRobot Distributed Framework',
+        alt: 'Aster',
         src: 'img/favicon.svg',
       },
       items: [
@@ -57,11 +57,7 @@ const config = {
         {to: '/docs/configuration/deployment', label: '部署', position: 'left'},
         {to: '/docs/performance', label: '性能', position: 'left'},
         {type: 'localeDropdown', position: 'right'},
-        {
-          href: 'https://github.com/xrobot-org/XRobot',
-          label: '上游 XRobot',
-          position: 'right',
-        },
+        {href: 'https://github.com/aster-robotics', label: 'GitHub', position: 'right'},
       ],
     },
     footer: {
@@ -100,7 +96,7 @@ const config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} SHU RoboMaster`,
+      copyright: `Copyright © ${new Date().getFullYear()} Aster contributors`,
     },
   },
 };

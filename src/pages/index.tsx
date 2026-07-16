@@ -2,7 +2,6 @@ import React from 'react';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './home.module.css';
 
 type Entry = {
@@ -14,244 +13,122 @@ type Entry = {
 };
 
 type Copy = {
-  title: string;
   description: string;
-  eyebrow: string;
   lead: string;
   primaryAction: string;
   secondaryAction: string;
-  entryEyebrow: string;
   entryTitle: string;
   entryLead: string;
   entries: Entry[];
-  architectureEyebrow: string;
   architectureTitle: string;
   architectureLead: string;
-  evidenceEyebrow: string;
-  evidenceTitle: string;
-  evidenceLead: string;
-  performanceAction: string;
-  firmwareAction: string;
+  graphTitle: string;
+  compileTitle: string;
+  targetTitle: string;
+  boundaryTitle: string;
+  boundaryLead: string;
+  boundaryItems: Array<{title: string; description: string}>;
 };
 
 const COPY: Record<'zh' | 'en', Copy> = {
   zh: {
-    title: 'XRobot Distributed Framework',
-    description: '面向 MCU、Linux 与未来仿真的静态分布式机器人运行时。',
-    eyebrow: 'STATIC / BOUNDED / DISTRIBUTED',
-    lead: '用同一套机器人逻辑描述 F4 与 H7 双板系统，并为未来 Linux 与仿真节点保留相同的部署语义。硬件接线、节点放置和通信路由由配置与编译器决定。',
-    primaryAction: '开始阅读',
-    secondaryAction: '查看双板部署',
-    entryEyebrow: 'DOCUMENT ENTRY MAP',
-    entryTitle: '从当前任务进入',
-    entryLead: '不要求先通读整套框架。选择你正在做的事情，直接进入对应的配置、代码和验证路径。',
+    description: '面向 MCU、Linux 与仿真的跨平台分布式机器人框架。',
+    lead: '应用描述机器人行为，部署描述运行位置。Aster 在构建期组合 Module、生成静态路由并绑定平台能力，让同一套上层逻辑跨硬件与操作系统部署。',
+    primaryAction: '开始使用',
+    secondaryAction: '理解架构',
+    entryTitle: '按任务进入文档',
+    entryLead: '从 Module 开发、整机配置、部署编译或链路诊断开始，不需要先理解全部实现。',
     entries: [
-      {
-        index: '01',
-        title: '第一次搭建环境',
-        description: '准备工具链，理解 workspace，并完成首个可验证构建。',
-        to: '/docs/setup',
-        tag: 'START',
-      },
-      {
-        index: '02',
-        title: '开发一个 Module',
-        description: '使用生命周期、端口和执行上下文编写可移植机器人模块。',
-        to: '/docs/basic/module',
-        tag: 'CODE',
-      },
-      {
-        index: '03',
-        title: '部署到多块板',
-        description: '用 deployment.yaml 放置实例并生成本地与跨板路由。',
-        to: '/docs/configuration/deployment',
-        tag: 'DEPLOY',
-      },
-      {
-        index: '04',
-        title: '定位失联与故障',
-        description: '检查 freshness、握手、队列水位、故障码和链路统计。',
-        to: '/docs/debugging',
-        tag: 'DEBUG',
-      },
+      {index: '01', title: '搭建 Workspace', description: '安装工具，解析 Package，并完成首个 Host 构建。', to: '/docs/setup', tag: 'START'},
+      {index: '02', title: '开发 Module', description: '使用生命周期、端口和 Executor 编写可移植逻辑。', to: '/docs/basic/module', tag: 'CODE'},
+      {index: '03', title: '编译部署图', description: '将逻辑实例放到目标节点，自动生成本地与跨节点路由。', to: '/docs/configuration/deployment', tag: 'DEPLOY'},
+      {index: '04', title: '分析运行状态', description: '检查消息年龄、deadline、队列水位和链路统计。', to: '/docs/debugging', tag: 'DEBUG'},
     ],
-    architectureEyebrow: 'ARCHITECTURE BASELINE',
-    architectureTitle: '一套 API，三层确定性',
-    architectureLead: '应用只表达机器人行为。Runtime 保证消息与执行语义，Backend 才接触 libxr、RTOS 和具体外设。',
-    evidenceEyebrow: 'VERIFIED VERTICAL SLICE',
-    evidenceTitle: '以构建证据描述能力',
-    evidenceLead: '首个双板纵向切片已生成并链接完整固件。软件证据与硬件验收边界分别记录，不用“理论可行”代替结果。',
-    performanceAction: '查看性能与边界',
-    firmwareAction: '查看固件证据',
+    architectureTitle: '逻辑、部署与平台各自独立',
+    architectureLead: 'Node 是逻辑运行身份，不是板卡型号。替换硬件、RTOS、进程或传输后端时，Module 和消息契约保持不变。',
+    graphTitle: '应用图',
+    compileTitle: '部署编译器',
+    targetTitle: '目标节点',
+    boundaryTitle: '小而明确的框架核心',
+    boundaryLead: 'Aster 不内置某一种机器人。领域能力以独立 Package 组合，核心只提供可移植运行语义与生成工具。',
+    boundaryItems: [
+      {title: 'Runtime', description: '生命周期、Executor、参数、诊断与有界资源。'},
+      {title: 'Contracts', description: 'Topic、Service、Action、Schema 与 TypeSupport。'},
+      {title: 'Deployment', description: '实例放置、QoS、静态路由、预算与版本锁定。'},
+      {title: 'Backends', description: 'libxr、裸机、RTOS、Linux、仿真与传输适配。'},
+    ],
   },
   en: {
-    title: 'XRobot Distributed Framework',
-    description: 'A static distributed robot runtime for MCUs, Linux, and future simulation.',
-    eyebrow: 'STATIC / BOUNDED / DISTRIBUTED',
-    lead: 'Describe the F4 and H7 system with one robot application while preserving the same deployment semantics for future Linux and simulation nodes. Configuration and code generation own wiring, placement, and transport routes.',
-    primaryAction: 'Read the docs',
-    secondaryAction: 'Inspect dual-board deployment',
-    entryEyebrow: 'DOCUMENT ENTRY MAP',
-    entryTitle: 'Enter from the task at hand',
-    entryLead: 'You do not need to read the framework front to back. Start from the configuration, code, or verification path that matches your current task.',
+    description: 'A cross-platform distributed robotics framework for MCUs, Linux, and simulation.',
+    lead: 'Applications describe robot behavior; deployments describe where it runs. Aster composes Modules, generates static routes, and binds platform capabilities at build time so the same logic can move across hardware and operating systems.',
+    primaryAction: 'Get started',
+    secondaryAction: 'Understand the architecture',
+    entryTitle: 'Enter by task',
+    entryLead: 'Start with Module development, system configuration, deployment compilation, or link diagnostics without reading every implementation detail first.',
     entries: [
-      {
-        index: '01',
-        title: 'Set up the environment',
-        description: 'Prepare the toolchain, understand the workspace, and complete a verified build.',
-        to: '/docs/setup',
-        tag: 'START',
-      },
-      {
-        index: '02',
-        title: 'Build a Module',
-        description: 'Use lifecycle, ports, and execution context to write portable robot logic.',
-        to: '/docs/basic/module',
-        tag: 'CODE',
-      },
-      {
-        index: '03',
-        title: 'Deploy across boards',
-        description: 'Place instances in deployment.yaml and generate local or cross-node routes.',
-        to: '/docs/configuration/deployment',
-        tag: 'DEPLOY',
-      },
-      {
-        index: '04',
-        title: 'Trace link failures',
-        description: 'Inspect freshness, handshakes, queue watermarks, fault codes, and link stats.',
-        to: '/docs/debugging',
-        tag: 'DEBUG',
-      },
+      {index: '01', title: 'Set up a Workspace', description: 'Install the tools, resolve Packages, and complete a Host build.', to: '/docs/setup', tag: 'START'},
+      {index: '02', title: 'Develop a Module', description: 'Write portable logic with lifecycle, ports, and Executors.', to: '/docs/basic/module', tag: 'CODE'},
+      {index: '03', title: 'Compile a deployment', description: 'Place logical instances and generate local or remote routes.', to: '/docs/configuration/deployment', tag: 'DEPLOY'},
+      {index: '04', title: 'Inspect runtime state', description: 'Trace message age, deadlines, queue watermarks, and link metrics.', to: '/docs/debugging', tag: 'DEBUG'},
     ],
-    architectureEyebrow: 'ARCHITECTURE BASELINE',
-    architectureTitle: 'One API, three layers of certainty',
-    architectureLead: 'Applications express robot behavior. Runtime owns messaging and execution semantics. Only backends touch libxr, RTOS APIs, and concrete peripherals.',
-    evidenceEyebrow: 'VERIFIED VERTICAL SLICE',
-    evidenceTitle: 'Capabilities backed by build evidence',
-    evidenceLead: 'The first dual-board vertical slice now produces complete linked firmware. Software evidence and hardware acceptance remain explicitly separate.',
-    performanceAction: 'Performance and limits',
-    firmwareAction: 'Firmware evidence',
+    architectureTitle: 'Logic, deployment, and platform stay separate',
+    architectureLead: 'A Node is a logical runtime identity, not a board model. Modules and message contracts remain stable when hardware, RTOS, process, or transport backends change.',
+    graphTitle: 'Application graph',
+    compileTitle: 'Deployment compiler',
+    targetTitle: 'Target nodes',
+    boundaryTitle: 'A small, explicit framework core',
+    boundaryLead: 'Aster does not embed one robot architecture. Domain capabilities are composed as Packages; the core provides portable runtime semantics and generation tools.',
+    boundaryItems: [
+      {title: 'Runtime', description: 'Lifecycle, Executors, parameters, diagnostics, and bounded resources.'},
+      {title: 'Contracts', description: 'Topic, Service, Action, Schema, and TypeSupport.'},
+      {title: 'Deployment', description: 'Placement, QoS, static routes, budgets, and version locks.'},
+      {title: 'Backends', description: 'libxr, bare metal, RTOS, Linux, simulation, and transport adapters.'},
+    ],
   },
-};
-
-const LAYERS = {
-  zh: [
-    {
-      label: 'APPLICATION',
-      title: '机器人行为',
-      items: ['Module', 'Topic', 'Service', 'Action'],
-      description: '只依赖稳定能力与消息契约，不暴露 HAL、FreeRTOS 或 libxr 类型。',
-    },
-    {
-      label: 'RUNTIME',
-      title: '执行与通信语义',
-      items: ['Schema', 'Executor', 'QoS', 'Freshness'],
-      description: '静态资源、有界队列、生命周期、失联策略与部署握手集中在这一层。',
-    },
-    {
-      label: 'BACKEND',
-      title: '平台与设备适配',
-      items: ['libxr', 'BSP', 'CAN', 'UART / USB'],
-      description: '板级资源、驱动和 RTOS 细节留在边界内，可随目标板替换。',
-    },
-  ],
-  en: [
-    {
-      label: 'APPLICATION',
-      title: 'Robot behavior',
-      items: ['Module', 'Topic', 'Service', 'Action'],
-      description: 'Depends on stable capabilities and contracts, with no HAL, FreeRTOS, or libxr types.',
-    },
-    {
-      label: 'RUNTIME',
-      title: 'Execution and transport semantics',
-      items: ['Schema', 'Executor', 'QoS', 'Freshness'],
-      description: 'Static resources, bounded queues, lifecycle, stale policy, and handshakes live here.',
-    },
-    {
-      label: 'BACKEND',
-      title: 'Platform and device adaptation',
-      items: ['libxr', 'BSP', 'CAN', 'UART / USB'],
-      description: 'Board resources, drivers, and RTOS details stay inside replaceable platform boundaries.',
-    },
-  ],
-};
-
-const EVIDENCE = {
-  zh: [
-    {value: '2', label: '已链接 MCU 固件'},
-    {value: '24', label: '已锁定独立仓库'},
-    {value: '0', label: 'ELF 未解析符号'},
-    {value: '60.563%', label: '最坏情况 CAN 预算'},
-  ],
-  en: [
-    {value: '2', label: 'linked MCU firmware'},
-    {value: '24', label: 'locked package repositories'},
-    {value: '0', label: 'undefined ELF symbols'},
-    {value: '60.563%', label: 'worst-case CAN budget'},
-  ],
 };
 
 export default function Home(): React.ReactElement {
   const {i18n} = useDocusaurusContext();
-  const locale = i18n.currentLocale === 'en' ? 'en' : 'zh';
-  const copy = COPY[locale];
-  const layers = LAYERS[locale];
-  const evidence = EVIDENCE[locale];
-  const heroLight = useBaseUrl('/img/framework-hero-light.png');
-  const heroDark = useBaseUrl('/img/framework-hero-dark.png');
+  const copy = COPY[i18n.currentLocale === 'en' ? 'en' : 'zh'];
 
   return (
-    <Layout title={copy.title} description={copy.description}>
+    <Layout title="Aster" description={copy.description}>
       <main className={styles.page}>
         <section className={styles.hero}>
-          <div className={styles.heroVisual} aria-hidden="true">
-            <img
-              className={styles.heroVisualLight}
-              src={heroLight}
-              width={1360}
-              height={790}
-              alt=""
-            />
-            <img
-              className={styles.heroVisualDark}
-              src={heroDark}
-              width={1360}
-              height={790}
-              alt=""
-            />
-          </div>
           <div className={`container ${styles.heroInner}`}>
             <div className={styles.heroCopy}>
-              <div className={styles.eyebrow}>
-                <span className={styles.liveDot} aria-hidden="true" />
-                {copy.eyebrow}
-              </div>
-              <h1>{copy.title}</h1>
+              <div className={styles.eyebrow}><span /> STATIC / BOUNDED / DISTRIBUTED</div>
+              <h1>Aster</h1>
               <p>{copy.lead}</p>
               <div className={styles.heroActions}>
-                <Link className={styles.primaryAction} to="/docs/">
-                  {copy.primaryAction}
-                </Link>
-                <Link className={styles.secondaryAction} to="/docs/configuration/deployment">
-                  {copy.secondaryAction}
-                </Link>
+                <Link className={styles.primaryAction} to="/docs/">{copy.primaryAction}</Link>
+                <Link className={styles.secondaryAction} to="/docs/architecture">{copy.secondaryAction}</Link>
               </div>
               <dl className={styles.heroFacts}>
-                <div>
-                  <dt>MCU</dt>
-                  <dd>STM32 F4 / H7</dd>
-                </div>
-                <div>
-                  <dt>RUNTIME</dt>
-                  <dd>Static + bounded</dd>
-                </div>
-                <div>
-                  <dt>LINK</dt>
-                  <dd>Compact CAN</dd>
-                </div>
+                <div><dt>API</dt><dd>Topic · Service · Action</dd></div>
+                <div><dt>EXECUTION</dt><dd>Static · bounded</dd></div>
+                <div><dt>TARGETS</dt><dd>MCU · Linux · Sim</dd></div>
               </dl>
+            </div>
+
+            <div className={styles.heroDiagram} aria-label={copy.architectureTitle}>
+              <div className={styles.diagramColumn}>
+                <span>{copy.graphTitle}</span>
+                <div className={styles.diagramNode}><strong>motion</strong><small>Module</small></div>
+                <div className={styles.diagramNode}><strong>localization</strong><small>Module</small></div>
+                <div className={styles.diagramNode}><strong>safety</strong><small>Module</small></div>
+              </div>
+              <div className={styles.compilerBlock}>
+                <span>ASTERCTL</span>
+                <strong>{copy.compileTitle}</strong>
+                <code>graph + profiles</code>
+              </div>
+              <div className={styles.diagramColumn}>
+                <span>{copy.targetTitle}</span>
+                <div className={`${styles.diagramNode} ${styles.targetNode}`}><strong>motion_control</strong><small>MCU target</small></div>
+                <div className={`${styles.diagramNode} ${styles.targetNode}`}><strong>perception_compute</strong><small>Linux target</small></div>
+                <div className={`${styles.diagramNode} ${styles.targetNode}`}><strong>simulation</strong><small>Host target</small></div>
+              </div>
             </div>
           </div>
         </section>
@@ -259,19 +136,13 @@ export default function Home(): React.ReactElement {
         <section className={styles.entryBand}>
           <div className="container">
             <div className={styles.sectionHeading}>
-              <div>
-                <span>{copy.entryEyebrow}</span>
-                <h2>{copy.entryTitle}</h2>
-              </div>
+              <div><span>DOCUMENTATION</span><h2>{copy.entryTitle}</h2></div>
               <p>{copy.entryLead}</p>
             </div>
             <div className={styles.entryGrid}>
               {copy.entries.map((entry) => (
                 <Link className={styles.entryCard} to={entry.to} key={entry.index}>
-                  <div className={styles.entryMeta}>
-                    <span>{entry.index}</span>
-                    <span>{entry.tag}</span>
-                  </div>
+                  <div className={styles.entryMeta}><span>{entry.index}</span><span>{entry.tag}</span></div>
                   <h3>{entry.title}</h3>
                   <p>{entry.description}</p>
                   <span className={styles.entryArrow} aria-hidden="true">→</span>
@@ -284,56 +155,34 @@ export default function Home(): React.ReactElement {
         <section className={styles.architectureBand}>
           <div className="container">
             <div className={`${styles.sectionHeading} ${styles.sectionHeadingDark}`}>
-              <div>
-                <span>{copy.architectureEyebrow}</span>
-                <h2>{copy.architectureTitle}</h2>
-              </div>
+              <div><span>PORTABLE BY CONSTRUCTION</span><h2>{copy.architectureTitle}</h2></div>
               <p>{copy.architectureLead}</p>
             </div>
-            <div className={styles.layerGrid}>
-              {layers.map((layer, index) => (
-                <article className={styles.layer} key={layer.label}>
-                  <div className={styles.layerIndex}>0{index + 1}</div>
-                  <span className={styles.layerLabel}>{layer.label}</span>
-                  <h3>{layer.title}</h3>
-                  <div className={styles.layerItems}>
-                    {layer.items.map((item) => <code key={item}>{item}</code>)}
-                  </div>
-                  <p>{layer.description}</p>
-                </article>
-              ))}
-            </div>
-            <div className={styles.deploymentRail} aria-label="Generated deployment topology">
-              <span>F4 / GIMBAL</span>
-              <i aria-hidden="true" />
-              <strong>GENERATED ROUTES</strong>
-              <i aria-hidden="true" />
-              <span>H7 / CHASSIS</span>
-              <i aria-hidden="true" />
-              <span className={styles.futureNode}>LINUX / SIM (FUTURE)</span>
+            <div className={styles.deploymentFlow}>
+              <div><span>01</span><strong>Robot / Application</strong><code>instances + ports</code></div>
+              <i aria-hidden="true">→</i>
+              <div><span>02</span><strong>Deployment</strong><code>placement + QoS</code></div>
+              <i aria-hidden="true">→</i>
+              <div><span>03</span><strong>Target Profiles</strong><code>BSP + OS + links</code></div>
+              <i aria-hidden="true">→</i>
+              <div><span>04</span><strong>Generated Runtime</strong><code>composition + routes</code></div>
             </div>
           </div>
         </section>
 
-        <section className={styles.evidenceBand}>
-          <div className={`container ${styles.evidenceLayout}`}>
-            <div className={styles.evidenceCopy}>
-              <span>{copy.evidenceEyebrow}</span>
-              <h2>{copy.evidenceTitle}</h2>
-              <p>{copy.evidenceLead}</p>
-              <div className={styles.evidenceActions}>
-                <Link to="/docs/performance">{copy.performanceAction} →</Link>
-                <Link to="/docs/configuration/firmware">{copy.firmwareAction} →</Link>
-              </div>
+        <section className={styles.boundaryBand}>
+          <div className="container">
+            <div className={styles.sectionHeading}>
+              <div><span>CORE BOUNDARY</span><h2>{copy.boundaryTitle}</h2></div>
+              <p>{copy.boundaryLead}</p>
             </div>
-            <dl className={styles.evidenceGrid}>
-              {evidence.map((item) => (
-                <div key={item.label}>
-                  <dt>{item.value}</dt>
-                  <dd>{item.label}</dd>
-                </div>
+            <div className={styles.boundaryGrid}>
+              {copy.boundaryItems.map((item, index) => (
+                <article key={item.title}>
+                  <span>0{index + 1}</span><h3>{item.title}</h3><p>{item.description}</p>
+                </article>
               ))}
-            </dl>
+            </div>
           </div>
         </section>
       </main>

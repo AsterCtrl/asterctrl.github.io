@@ -1,216 +1,62 @@
 ---
-title: control-2026 迁移
+title: 迁移现有机器人
 ---
 
-权威源是本地 `control-2026/infantry_wheel_legged_sjtu` 当前 worktree，而不是远端分支
-或单纯 `HEAD`。当前必须保留的未提交行为包括 75 ms 跳跃收腿延时和小陀螺模式的
-当前 yaw 跟随。
+迁移的目标不是把旧目录原样搬进 Aster，而是保留经过确认的行为，同时显式建立代码、
+消息、硬件与部署边界。旧工程在迁移期间保持只读，并作为行为、参数和协议的权威输入。
 
-迁移采用纯算法、运行 Module、设备驱动和部署配置分层。每项 legacy 功能在迁移矩阵
-中拥有目标 Package、测试证据和状态，不能以“由新框架替代”为由静默删除。
+## 建立行为矩阵
 
-## 当前轮腿控制切片
+先列出每项可观察行为，再决定目标 Package 和验证证据：
 
-`wheel-legged-model` 提供五连杆、速度估计、轨迹规划、LQR 调度和十维状态反馈。
-`chassis-wheel-legged` 的可移植核心把这些算法组合为完整平衡周期，Runtime 外壳再负责：
+| Legacy 行为 | 新所有者 | 契约 | 证据 | 状态 |
+| --- | --- | --- | --- | --- |
+| 运动模式切换 | product-control | RobotIntent → MotionCommand | 状态机测试 | planned |
+| 传感器失联 | sensor Module | State + freshness | 故障注入 | planned |
+| 执行器限幅 | actuator adapter | ActuatorGroup | 协议向量 | planned |
 
-- 200 Hz 生成式周期任务，不在 Module 内创建线程或延时等待。
-- `ChassisMotionCommand`、控制参数和 `AttitudeState` 的时间戳新鲜度。
-- 四达妙关节与两 DJI 轮电机的两个类型化 `MotorGroup`。
-- 失联、故障、NaN、几何不可解和命令拒绝时同时 `Relax()` 两组执行器。
-- 高频/低频底盘状态发布与发布背压统计。
+没有分类的功能不能因为“新框架更先进”而静默删除。每个参数都应记录单位、来源、有效
+范围和是否需要重新标定。
 
-关节逻辑顺序固定为右前、右后、左前、左后；轮组顺序为右、左。左右符号、240 个
-LQR 多项式系数、23 kg 质量、0.495 m 轮距、腿长范围和 75 ms 收腿保持均来自权威
-worktree。严格告警与 ASan/UBSan host 测试通过，完整控制周期有零动态分配断言。
+## 按责任拆分
 
-DJI/达妙 adapter、MC02 固件入口和链接脚本已经进入完整 H7 ELF。旧工程平衡态
-`PowerControl()` 当前被注释，因此新实现也没有虚构一个平衡功控；仍启用的
-`PowerControl_Prostrate()` 已迁为 chassis-owned 六参数模型与超电策略，并通过
-`MotorGroup::Command::torque_limit_nm` 约束下一次 adapter 输出。模型统一使用
-`|I|/|omega|`，比旧 signed arithmetic 更保守但不逐位等价；它使用最新电机反馈而不是
-同一 C 函数中的私有 `final_output`。这仍需要实车功率/稳定性测试，不能称为闭环验收。
+常见 legacy 文件同时包含中断、协议、设备状态、滤波、控制、线程和全局变量。迁移时按
+以下责任拆分：
 
-## 当前输入与协调切片
+1. **纯算法**：只处理数值和状态，不依赖 Runtime 或平台。
+2. **Runtime Module**：拥有生命周期、端口、参数和周期任务。
+3. **Driver/adapter**：封装协议、设备状态、方向、量程和 I/O 完成语义。
+4. **BSP**：拥有芯片启动、引脚、外设、DMA 与 RTOS 接入。
+5. **Deployment**：决定实例位置、target、Link 和 QoS。
 
-`inf-wheel-legged-input` 没有制造一个掩盖硬件差异的“通用遥控器包”。`Dr16Mapper` 与
-`Vt13Mapper` 分别理解自己的 switch、按键、扳机、鼠标和键盘事实；第一帧只建立快照，
-不会把上电时已按住的键伪造成边沿，鼠标 delta 也只消费一次。
+Module 不创建私有线程，不在构造函数里睡眠重试，也不持有 HAL 或 RTOS handle。阻塞初始化
+改写为有界状态机，周期执行由生成 Executor 调度。
 
-最终 `MotionArbiter` 在摇杆越过进入阈值时让遥控器取得平移所有权，回到退出阈值以内
-才交还键盘；所有权变化按 `source_blend_ms` 连续混合。离线、超龄、非法轴值、急停档
-或非法 `input_source` 每周期发布新的 `PowerOff` intent，不沿用最后一条运动命令。启动
-参数 `input_source=1` 将当前权威双板部署固定为 VT13，未选 DR16 不会自动接管。
+## 消息迁移
 
-输入设备本身也已从旧 UART 回调拆出。`dr16` 在任意字节分片上扫描 18 字节 DBUS 帧，
-校验五个 11-bit 通道、两个三态 switch 和鼠标键物理域；没有 SOF/CRC 的协议只能用
-一字节滑窗恢复。`vt13` 扫描 21 字节 `A9 53` 帧，使用旧工程实际采用的反射
-`0x8408`、初值 `0xffff`、无最终 XOR、小端 CRC，而不是旧注释误称的 CCITT-FALSE。
-它同时校验保留位、拨片、通道和 2-bit 鼠标键域，并可在前一帧丢字节后保留下一帧 SOF。
+不要将旧 C struct 的内存布局直接变成 wire contract。先定义 Schema、单位、枚举和固定
+上界，再生成 TypeSupport 和测试向量。旧协议保留 codec 与录制帧回放，业务 Module 使用
+规范化 SI 单位和语义消息。
 
-两者每 1 ms 最多从 `ByteReader` 取四个 64 B 块。只有完整合法帧刷新 100 ms 在线
-看门狗；启动、回拨时钟或超时都发布显式 `online=false`，坏帧不会喂狗。若离线 Topic
-因背压发送失败，下一周期继续尝试，不把失败误记为已交付。旧 VT13 驱动里的 toggle
-flag 和按键计数没有复制进设备层，边沿与机器人状态仍由 Mapper/协调器拥有。
+输入设备的原始事实、机器人意图和执行器命令应是不同契约。这样替换操作设备、移动控制
+Module 或接入自动规划时，不要求下游猜测来源。
 
-输入状态机保留站立/卧倒、FREE、蹭台阶、四档腿长、跳跃准备与触发、X 掉头反向跟随、
-Q 开火策略、C 超电和 B UI 刷新语义。云台增量与旧代码中摇杆 30 倍、鼠标 10 倍的底盘
-yaw 前馈分字段传递；物理扳机显式绕过视觉门控，鼠标仍服从所选开火策略。视觉跟踪时
-协调器用实际云台反馈同步隐藏手动参考，退出自瞄不会释放累积的隐形增量。
+## 增量闭环
 
-Mapper、仲裁、状态机和真实 Runtime Module 测试在严格告警与 ASan/UBSan 下通过，周期
-测试覆盖输入失联、未选源隔离、Topic 背压和零动态分配。当前跳跃完成仍只使用 1.2 s
-权威超时兜底；底盘 jump FSM 完成反馈尚未进入消息契约，因此不能声称这一闭环已等价。
+推荐迁移顺序：
 
-## 当前发射切片
+1. 为纯算法补数值回归测试。
+2. 用 Host fake 驱动 Runtime Module，覆盖正常与故障路径。
+3. 接入一个真实 backend，并回放协议向量。
+4. 生成单节点 target，验证入口、map、静态资源和零未解析符号。
+5. 增加跨节点 Link，验证握手、stale、重连和带宽预算。
+6. 最后做架空首烧、低输出台架与完整硬件闭环。
 
-`shoot-standard` 已把旧全局单例迁为 1 kHz Runtime Module。16 个生成参数显式保存
-SJTU 轮腿步兵的 3240 deg 拨盘电机步长、双摩擦轮 `+1/-1` 方向、37k rpm 基准与
-35k..39k 限幅、500/55 ms 单发/连发间隔、22.5 m/s 目标、弹速修正、前馈和单发热量。
-`friction_motor_count` 可在构建期改为 3，不需要源码条件编译。
+软件可构建、可链接和可回放不等于硬件验收。安装方向、零位、功率、WCET、栈水位和
+长期故障恢复必须在目标产品上单独记录。
 
-单发按模式进入沿推进一次；连发在 55 ms 到期前保持位置目标；显式反转按 500 ms
-退弹。每次正向推进前都检查新鲜裁判数据与旧实现的五/六发热量余量。实测弹速只作为
-反馈，协调器发送目标值 0 表示使用发射 Package 配置的 22.5 m/s，避免把实测值误当目标
-而令闭环误差恒为零。
+## Legacy XRobot Module
 
-`MotorGroup::FaultFlag` 统一堵转、过温、过流、通信、编码器和驱动故障。拨盘堵转只触发
-一次锁存退弹；其他故障、反馈失联、命令超过 30 ms、快照或整组命令失败会同时
-`Relax()` 两组电机。严格告警、ASan/UBSan、两/三摩擦轮、热量边界、故障注入、发布
-背压和完整周期零分配测试已通过。旧代码直接修改 DJI 私有 `final_output` 的前馈被规范为
-有界速度参考偏置，因此仍需在 Dev C 实机上重新整定，不能据此声称发射机构已实机完成。
-
-## 当前 BMI088 与姿态切片
-
-`bmi088` 没有沿用旧工程的 HAL 中间层，也没有照搬 QDU Module 在构造函数中重试、休眠
-和创建私有线程的做法。Runtime Module 只解析一个聚合 `Bmi088Sensor` 能力；具体 SPI、
-双片选、gyro data-ready 和 heater PWM 被压到 `Bmi088Bus` adapter seam，仿真传感器可以
-实现同一接口。公共头与热路径不包含 libxr、HAL、RTOS 或动态分配。
-
-驱动以单步状态机复位两个 die，按单调时间等待 80 ms，检查 `0x1e/0x0f` chip ID，并逐项
-写入、回读 6G/800 Hz accelerometer 与 2000 dps/2 kHz gyroscope 配置。每个完整 data-ready
-样本转换为 SI 单位并保留中断时间戳。1 kHz Module 在同一个生成 Executor 上完成旧工程的
-安装旋转、预标定 bias、杆臂补偿、100 帧重力预热、固定内存六状态 Quaternion EKF、运动
-加速度后处理与 500 Hz heater PI，不依赖任务之间的隐式顺序。
-
-chassis 权威参数已配置为 pitch `180 deg`、三轴 scale `1`、杆臂
-`0.15413/0.04612/0.09348 m`、gyro bias
-`0.00708952406/0.00323308632/0.00078589347 rad/s` 和目标温度 `40 degC`。非阻塞
-`CalibrateImu` Action 用在线均值/方差判稳，支持进度、取消和三参数回滚。超过 10 ms 无
-新样本会停止姿态发布并重新预热，不能无限期沿用最后姿态。
-
-寄存器、带符号解析、安装矩阵、解析杆臂向心项、EKF 连续 yaw、失联恢复、Action、背压
-和完整周期零分配测试在严格告警与 ASan/UBSan 下通过。MC02/Dev C libxr bus adapter 与
-设备构造已分别进入 H7/F4 固件；flash 参数持久化、真实录制数据回放、安装方向和目标
-timing 仍未完成，因此不能声称 IMU 已经实机验证。
-
-## 当前标准云台切片
-
-`gimbal-standard` 已拆成纯角度外环和 Runtime Module。视觉目标只由协调器解释一次，
-云台消费最终 `GimbalCommand`；C 板 BMI088 作为独立 Module 发布 `AttitudeState`，云台
-不再持有 INS、SPI 或板级句柄。两轴执行器统一为单元素 `MotorGroup`，因此 host fake、
-DJI adapter 和仿真实现使用同一控制源码。
-
-手瞄 yaw `0.4/0/0.02`、自瞄 yaw `2.5/0/0.04` 和 pitch `1.5/0/0.02` 的 legacy
-degree-domain 增益已按 `180/pi` 等价换算到 rad-domain；保留测量微分、最近圈 yaw 展开、
-旋转速度前馈和 `-30..25 deg` pitch 限位。外环在生成的 200 Hz Executor 运行并输出有界
-rad/s 参考，GM6020 内层速度 PID 属于 DJI adapter，不下沉板级类型到 Module。
-
-命令超过 30 ms、姿态超过 20 ms、任一电机反馈超过 20 ms、故障、NaN、snapshot 或
-apply 失败都会同时释放两轴。只有姿态和两轴反馈都有效时才发布测量状态，避免下游把
-默认零值当作新鲜反馈。严格告警与 ASan/UBSan 测试覆盖 manual/vision 数值、跨 ±pi、
-pitch 限位、非法枚举、背压、Shutdown 和完整周期零分配。Dev C BMI088 与 DJI adapter、
-ECD 5010/4215 零位、方向、真实轨迹和目标 timing 仍需硬件验证。
-
-## 当前视觉链路切片
-
-`vision-link` 保留当前轮腿步兵实际启用的 USB CDC VCP 兼容协议，而不是未完成的 Seasky
-UART 分支。上位机到机器人固定为 18 B 小端帧：body length `16`、record ID `1`、yaw 和
-pitch 两个 IEEE-754 degree 值、record ID `2` 和 `int32` fire `0/1`。机器人到上位机固定为
-30 B：body length `28`、record ID `1`、yaw/pitch/roll degree、work mode `0`、旧 `color`
-字段中的 robot ID、record ID `2` 和实测弹速。codec 边界负责 degree/radian 转换，控制消息
-内部仍只使用 SI 单位。
-
-旧格式没有 magic、版本、序号、时间戳或 CRC，不能被称为可靠的新协议。固定 64 B decoder
-只能通过精确长度、唯一 record ID、有限数值范围和 fire 物理域拒绝坏帧，并在任意分片、
-粘包或垃圾前缀中做有界逐字节重同步。未来 protocol v1 必须增加 magic、显式协议/Schema
-版本、payload length、消息种类、序号、source timestamp 与 CRC，并通过配置或握手选择兼容
-模式；禁止靠猜测在 v0/v1 之间切换，也不能静默改变现有 18/30 B wire contract。
-
-Runtime Module 每 5 ms 最多从 `VisionTransport` 读取四个 64 B 块，只让完整合法帧刷新
-50 ms 在线看门狗。超时后发布一次显式 `tracking=false, fire=false`；Topic 背压保留最新目标，
-TX 背压保留同一份 30 B 帧原样重试。发送状态要求 50 ms 内的新鲜 `GimbalState`，使用
-300 ms 内的新鲜 `RefereeState` 弹速，否则采用配置的 `22 m/s` fallback。视觉 Module 不再
-初始化或持有 INS，只订阅最终云台与裁判状态。
-
-精确字面帧、degree/radian、任意分片、连续帧、垃圾恢复、非法域、超时、回拨时钟、四次
-读取上界、发布/TX 背压、陈旧云台和完整周期零动态分配测试已在严格告警与 ASan/UBSan
-下通过。Dev C profile 已把 `vision-link/srm-vcp` 绑定到 `usb_cdc1`；libxr USB CDC
-adapter、固定 RX/TX 队列和设备构造已链接进 F4 固件。断线重枚举、上位机实录回放和
-真实 USB 时序仍未完成，因此结论是软件可烧，不是链路硬件验收。
-
-## 当前裁判系统接收切片
-
-`referee` 已把旧 UART 回调、全局缓冲区和 packed struct 解码迁为可移植 Runtime Module。
-固定 137 B 的 `RefereeDecoder` 接受任意 UART 分片，扫描 `0xA5`，验证官方反射 CRC8 与
-CRC16，并在坏校验、丢字节和超长声明后恢复下一候选帧。当前只解码轮腿控制实际消费的
-机器人状态 `0x0201`、功率/热量 `0x0202` 和射击数据 `0x0207`，未知合法命令仅计入链路
-活性，不扩张消息契约。
-
-Module 每 1 ms 最多读取四个 64 B 已排队字节块，更新在 20 Hz 合并发布。只有机器人状态
-与功率/热量各自都在 300 ms 内新鲜时才发布在线快照；可选弹速或未知帧不能掩盖任一必需
-类别过期。启动和超时发布全零安全状态，Topic 背压时下一周期重试；解析和发布热路径有
-零动态分配测试。官方输出位被归一为 chassis、gimbal、shooter 的应用位序。
-
-严格告警、ASan/UBSan、协议字面向量、分片、丢字节、CRC 故障、序号间断、超时与错峰
-恢复测试均已通过。MC02 UART/libxr adapter 与设备构造已链接 H7；DMA 错误恢复和实机
-2027 协议回放仍未完成，因此不声称裁判系统已在硬件上验证。
-
-## 当前裁判 UI 输出切片
-
-`referee` Package 现在同时提供平台无关的 `RefereeUiCommand`、`RefereeUiWriter` 和官方
-`0x0301` codec。删除、文字以及 1/2/5/7 图形批次都使用固定容量；单帧最大 120 B。
-96-bit 图形描述符按明确位偏移编码，不使用编译器 packed bitfield。精确 30 B 字面向量、
-CRC、非法字段、所有合法批次和输出容量测试在严格告警与 ASan/UBSan 下通过。
-
-`inf-wheel-legged-ui` 只订阅生成消息并解析一个 `RefereeUiWriter`，不接触 UART、DMA、
-libxr 或 RTOS 类型。固定 64 项队列保存轻量绘制动作，每次 draw 周期最多提交一个完整
-命令，默认写入上限 10 Hz；writer 背压时原命令原样保留并重试。裁判身份缺失或超过
-300 ms 时不发送，重连、30 s 看门狗或递增的 `ui_refresh_sequence` 都从 delete-all
-重新开始。序列字段让 F4 上一拍 B 键事件经过 20 Hz latest-only 跨板 route 后仍可观察，
-持续按住不会反复触发。
-
-完整布局保留相对方向、视觉框、地面引导线、两组五连杆及 BACK/FRONT 标签和腿长、
-九行状态、超电与速度。五连杆由可移植的虚拟腿长/角度和 body pitch 反解；不可解时发送
-黑色退化图形，不产生 NaN 坐标。重连、节流、背压、刷新序列、几何和完整周期零分配
-测试均通过。MC02 `referee/ui-writer` UART TX adapter 与固定发送路径已链接 H7；DMA
-完成/错误语义和真实客户端视觉检查仍未完成。
-
-## 当前超电协议切片
-
-`supercap-ctrl` 已把旧 `super_cap.c` 中的 SHU 自制超电 CAN 协议与机器人功率策略拆开。
-`ShuSuperCapCanCodec` 按字面保留主控发送 ID `0x210`、超电遥测 ID `0x211`、八字节小端
-布局、mV 电压和 `0.01 W` 有符号输入/输出功率。SHU 帧没有 boost 字段，因此
-`SuperCapCommand.mode` 不会被擅自塞进保留字节；原 `SuperCapModeControl()` 的安全、
-被动、主动、充电状态和底盘功率预算已经迁入 `chassis-wheel-legged`。协议 Package 不
-拥有机器人功率策略。
-
-100 Hz Runtime Module 只依赖聚合 `SuperCapLink`。每周期最多取四条已排队遥测，并以
-20 Hz 发布最新状态；10 V/24 V 默认阈值按电容能量的电压平方计算百分比。命令缺失、
-非法或超过 100 ms 时，每个周期发送零功率、零 buffer、关闭输出的安全命令；Shutdown
-也尝试同一写入。遥测超过旧工程一致的 50 ms 后发布 bit 31 离线状态，Topic 背压不会把
-失败误记成已交付，新遥测会立即重使能在线发布。
-
-精确帧、负功率、协议范围、队列上界、20 Hz 合并、两类超时、恢复、I/O 故障、发布
-重试、Shutdown 和完整周期零分配均在严格告警与 ASan/UBSan 下通过。MC02 CAN1/libxr
-adapter、`supercap-ctrl/shu-can` 设备构造及与 DJI 轮电机共享 endpoint 已链接 H7。真实
-超电帧回放、bus-off 恢复和功率闭环仍需台架验证。
-
-## 当前静态组合状态
-
-deployment compiler 已能生成并运行静态 `NodeComposition`。集成夹具实际构造 Source 与
-Sink Module、五种参数、周期 Executor、端口和 fake hardware，启动 Runtime 后验证消息
-到达。当前 H7 的 BMI088、轮腿底盘、UI、裁判系统和超电，以及 F4 的 BMI088、DR16、
-VT13、视觉、输入、协调、云台和发射都生成完整 composition、BSP 设备图、精确 CAN
-filter、FreeRTOS `app_main` 和固件 CMake 工程。两份 `firmware.yaml` 均为 `ready: true`，
-最终 ELF 无未解析符号并产出 `.hex/.bin/.map`。这证明软件构建闭合，不证明硬件闭环。
+`LegacyModuleAdapter` 用于渐进接入旧 XRobot Module，使 workspace 可以先建立 Aster
+deployment 和版本锁。它不自动发现隐藏在构造函数、全局变量或私有线程中的依赖，也不
+保证旧 Module 满足热路径和生命周期约束。适配器是迁移工具，不是新 Package 的默认 API。

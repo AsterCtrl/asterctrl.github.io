@@ -2,7 +2,7 @@
 title: Schema 与 TypeSupport
 ---
 
-跨 Module 公共契约由 `robot-msgs` Schema 定义。生成器输出 C++ 类型、稳定类型名、
+跨 Module 公共契约由 Schema Package 定义。生成器输出 C++ 类型、稳定类型名、
 Schema Hash、最大编码长度、TypeSupport 和跨平台测试向量。
 
 当前 schema 使用结构化 YAML，文件后缀分别为 `.msg.yaml`、`.srv.yaml` 和
@@ -10,9 +10,9 @@ Schema Hash、最大编码长度、TypeSupport 和跨平台测试向量。
 数组和其他固定记录，不支持 string 或无界 sequence。
 
 ```yaml
-api_version: xrobot.io/schema/v1alpha1
+api_version: aster.dev/schema/v1alpha1
 kind: Message
-metadata: {name: ImuSample, namespace: srm.msg}
+metadata: {name: ImuSample, namespace: robot.msg}
 spec:
   fields:
     - {name: acceleration, type: float32, unit: m/s2, array: 3}
@@ -22,10 +22,10 @@ spec:
 生成命令：
 
 ```sh
-xrctl schema generate robot-msgs/schemas build/generated
+asterctl schema generate robot-interfaces/schemas build/generated
 ```
 
-输出包含 `include/robot_msgs/robot_msgs.hpp`、`schema.lock.yaml` 和
+输出包含生成 C++ header、`schema.lock.yaml` 和
 `test_vectors.yaml`。生成器重复运行只在内容变化时写文件；schema lock 记录源文件
 SHA-256、每个类型的 128-bit hash 和最大编码长度。
 
@@ -45,7 +45,6 @@ Schema 语言和 wire encoding 是两层。相同逻辑类型可以拥有紧凑 
 控制 deployment 默认要求类型哈希完全一致。只有明确声明并测试过的接口才允许版本
 转换，不能把任意新旧固件混跑当成隐含承诺。
 
-轮腿 `RobotIntent` 保留“求解后的意图”，而不是重新塞入遥控器原始字段。云台 yaw
-增量与底盘 yaw 预测前馈是两个不同物理量；扳机绕过视觉开火门控也是显式布尔事实。
-跳跃准备、反向跟随和 UI 刷新位由 schema 中的 `RobotIntentAction` 定义，producer 与
-consumer 不再各自手写同一组魔数。这样更换输入硬件不会迫使底盘控制猜测事件来源。
+领域消息应表达求解后的语义，而不是重新塞入某个设备的原始字段。例如原始按键事实、
+机器人操作意图与运动控制命令是不同契约。这样更换输入设备、部署位置或控制策略时，
+consumer 不需要猜测事件来源。

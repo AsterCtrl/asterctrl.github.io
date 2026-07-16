@@ -2,40 +2,54 @@
 title: 环境配置
 ---
 
-第一阶段开发环境需要 CMake、Ninja、C++20 编译器、Python 3.11 以上、Node.js 20
-以上和 Arm GNU Toolchain。
+开发 Aster 工具和 Host target 需要 CMake、Ninja、支持 C++20 的编译器、Python 3.11
+以上和 Node.js 20 以上。构建 MCU firmware 时，再安装对应目标的交叉编译工具链。
 
-当前双板参考构建验证使用：
+| 工具 | 最低要求 | 用途 |
+| --- | --- | --- |
+| Python | 3.11 | `asterctl`、配置校验与代码生成 |
+| CMake | 3.25 | Runtime、Package 与生成 target |
+| Ninja | 1.10 | 推荐的构建后端 |
+| C++ compiler | C++20 | Host 测试和 Runtime |
+| Node.js | 20 | 文档站开发与静态构建 |
 
-| 工具 | 已验证版本/路径 |
-| --- | --- |
-| CMake | 4.3.0 |
-| Ninja | 1.13.2 |
-| Python | `/Users/enhao-zhang/anaconda3/bin/python3` 3.13.9 |
-| Arm GNU Toolchain | `/opt/homebrew/bin/arm-none-eabi-*` 15.2.1 |
-| Node.js | 20 以上 |
+具体版本由 workspace 的 lock 和 CI 矩阵确定，不应写入开发者的本机绝对路径。
 
-所有依赖版本最终由 workspace 与 lock 文件确定。上游 XRobot、libxr 和权威
-control-2026 工作区均视为只读输入，不在初始化脚本中执行隐式 pull 或 checkout。
-
-每个 Package 都必须提供独立的 host 构建或验证入口。顶层工具负责按 lock 解析
-Package，而不是依赖开发者本机碰巧存在的目录顺序。
-
-本地开发时不必把 `xrctl` 安装到全局环境：
+## 安装开发版工具
 
 ```sh
-cd control-2027
-PYTHONPATH=../xrobot-tools/src \
-  /Users/enhao-zhang/anaconda3/bin/python3 -m xrobot_tools.cli --help
+git clone https://github.com/aster-robotics/aster-tools.git
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -e ./aster-tools
+asterctl --help
 ```
 
-Package host 测试使用各仓库的 preset：
+也可以不做全局安装，直接从源码运行：
 
 ```sh
-cmake --preset host-debug
-cmake --build --preset host-debug
-ctest --preset host-debug --output-on-failure
+PYTHONPATH=../aster-tools/src python3 -m aster_tools.cli --help
 ```
 
-需要 ASan/UBSan 的 Package 另外提供 `host-sanitize` preset。MCU 生成、链接和产物审计
-见[固件生成与烧录](./configuration/firmware.md)。
+## 创建 Workspace
+
+```text
+my-robot/
+  workspace.yaml
+  package.lock.yaml
+  robots/
+  hardware/
+  deployments/
+```
+
+`workspace.yaml` 声明 Package 来源，lock 固定版本。机器人逻辑、接线和部署分别维护，
+生成目录可以删除并重复生成。第一个工程建议先选择 Host target 验证消息图和控制逻辑，
+再增加 MCU 或 Linux target。
+
+```sh
+asterctl config validate workspace.yaml
+asterctl workspace resolve workspace.yaml --lock package.lock.yaml
+```
+
+Package 应提供独立的构建或测试入口。工具按 lock 解析依赖，不依赖某台电脑上碰巧存在的
+目录布局，也不会隐式 pull、checkout 或覆盖本地修改。

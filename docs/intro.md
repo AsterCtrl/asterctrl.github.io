@@ -1,38 +1,44 @@
 ---
 sidebar_position: 1
 slug: /
-title: 框架概览
+title: Aster 概览
 ---
 
-这套框架面向资源受限 MCU、Linux 和未来仿真环境中的分布式机器人控制。
-首个参考实现是 C 板 F4 与 MC02 H7 组成的双板轮腿机器人。
-
-框架保留 XRobot/libxr 的静态嵌入式取向，同时补齐模块生命周期、统一执行器、
-Schema First 消息、部署图编译、紧凑 CAN 路由和可验证的失联策略。
+Aster 是面向资源受限 MCU、Linux 进程和仿真环境的分布式机器人框架。应用开发者使用
+同一套 Module、Topic、Service、Action 和 Parameter API 描述机器人行为；部署编译器
+根据目标配置决定模块运行位置、本地或远端路由、固定内存和平台适配。
 
 ```text
-robot.yaml + deployment.yaml
-              |
-       deployment compiler
-       /                 \
-F4 static firmware   H7 static firmware
-       \                 /
-        compiled CAN routes
+Application graph + Deployment + Target profiles
+                         |
+                  asterctl compile
+             /           |           \
+       MCU firmware   Linux process   simulation
+             \           |           /
+               versioned message contracts
 ```
 
-当前状态以仓库测试和生成报告为准。文档不会把规划中的能力描述成已经完成。
+## 核心边界
 
-截至 2026-07-16，首个纵向切片已经生成并链接 Dev C F4 与 MC02 H7 的完整
-`.elf/.hex/.bin/.map`，两次 deployment codegen 逐文件一致，两个 firmware report 均为
-`ready: true`。这里的“可烧录”表示镜像、入口、BSP、设备和静态路由已经闭合；尚未进行
-硬件闭环、方向/零位、真实总线 capture、WCET 与 stack watermark 验收。
+- **Aster Runtime** 管理生命周期、Executor、端口、参数与诊断。
+- **Aster Tools** 校验 Package、机器人图与部署图，并生成静态组合和报告。
+- **Aster Transports** 实现跨节点协议；应用看不到板间通信分支。
+- **Platform Backends** 适配 libxr、RTOS、裸机、Linux 或仿真能力。
+- **Domain Packages** 提供传感器、执行器、运动控制和机器人专属逻辑，但不属于框架核心。
 
-## 第一阶段目标
+Package 是否参与构建由 workspace 和机器人图决定。Aster 不要求安装任何特定电机、IMU、
+底盘或操作设备，也不规定机器人必须采用某一种机械结构。
 
-- 迁移 control-2026 轮腿机器人的完整双板行为。
-- 建立独立 Runtime、工具、消息和传输 Package。
-- 生成两块板的静态组合、路由和资源报告。
-- 在没有硬件闭环的条件下完成构建、协议、故障与数值验证。
+## 当前实现范围
 
-生产级 Linux Runtime、ROS 2/DDS Bridge、完整物理仿真和其他 MCU BSP 属于
-后续里程碑，但当前公共 API 不得阻断这些扩展。
+当前 MCU Runtime、Schema/TypeSupport、静态 deployment compiler、紧凑 CAN transport、
+libxr backend 和固件生成链路已有可执行测试。生产级 Linux Runtime、DDS/ROS 2 Bridge、
+完整物理仿真以及更多 MCU/RTOS backend 仍在路线图中。能力状态以测试、benchmark 和
+生成报告为准，不以路线图代替实现。
+
+## 从哪里开始
+
+1. 阅读[设计思想](./concept.md)理解实时性边界。
+2. 按[环境配置](./setup.md)建立第一个 workspace。
+3. 通过[基础编程](./basic/module.md)实现 Module。
+4. 使用[Deployment](./configuration/deployment.md)把逻辑映射到目标节点。

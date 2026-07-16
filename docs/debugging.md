@@ -13,12 +13,12 @@ title: 调试与可观测性
 生成固件提供全局变量：
 
 ```text
-xrobot_firmware_fault_code = (stage << 8) | status
+aster_firmware_fault_code = (stage << 8) | status
 ```
 
 高字节 stage 区分 BSP initialize、hardware initialize/start、CAN endpoint/bind/init、
 Composition configure/initialize/start、CAN drain、scheduler poll、Executor drain、hardware
-exchange 与 BSP poll；低字节是 `xrobot::runtime::Status`。值为 0 只表示尚未进入不可恢复
+exchange 与 BSP poll；低字节是 `aster::runtime::Status`。值为 0 只表示尚未进入不可恢复
 Halt，不等于所有 Module 在线。
 
 跨板 deployment/schema/protocol 不一致不会带着半套机器人继续运行。`LinkControl`

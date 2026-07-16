@@ -1,4 +1,4 @@
-# xrobot-docs
+# aster-docs
 
 Chinese-first, i18n-ready documentation for the distributed robot framework.
 

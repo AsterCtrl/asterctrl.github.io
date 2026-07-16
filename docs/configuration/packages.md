@@ -2,49 +2,52 @@
 title: Package 与 Module 配置
 ---
 
-新 Package 使用独立 `package.yaml`，不继续扩展头文件注释中的旧 XRobot manifest。
-Legacy Adapter 可以读取旧 manifest，但不会把隐藏在构造函数中的依赖视为可跨节点
-端口。
-
-Module 描述必须包含公开端口类型、硬件能力、Executor 需求、固定资源和放置约束。
-工具在构建 C++ 之前校验引用、类型和循环依赖，并拒绝未知配置键。
-
-Package 通过 `exports.modules` 暴露一个或多个 Module：
+Package 通过 `package.yaml` 声明依赖与导出。一个 Package 可以导出多个 Module 和纯算法
+target；仓库数量由领域边界决定，不由 Module 数量决定。
 
 ```yaml
+api_version: aster.dev/v1alpha1
+kind: Package
+metadata: {name: drive-control, version: 1.2.0}
 spec:
+  dependencies:
+    - {name: robot-interfaces, version: ^1.0}
   exports:
     modules:
-      - name: chassis-wheel-legged
-        manifest: module.yaml
+      - {name: differential-drive, manifest: modules/differential-drive.yaml}
+    libraries:
+      - {name: trajectory-model, target: trajectory_model}
 ```
 
-`module.yaml` 中的端口只声明角色和类型，不声明它在 CAN 上的 ID：
+Module manifest 描述公开契约，不声明 CAN ID、UART 编号或运行板卡：
 
 ```yaml
+api_version: aster.dev/v1alpha1
+kind: Module
+metadata: {name: differential-drive}
 spec:
   implementation:
-    target: chassis_wheel_legged
-    class: srm::chassis::WheelLeggedChassis
-    header: srm/chassis/wheel_legged/wheel_legged_chassis.hpp
+    target: differential_drive
+    class: robot::motion::DifferentialDrive
+    header: robot/motion/differential_drive.hpp
   ports:
-    - name: motion_command
+    - name: command
       kind: subscriber
-      type: srm.msg.ChassisMotionCommand
+      type: robot.msg.TwistCommand
       required: true
+    - name: state
+      kind: publisher
+      type: robot.msg.MotionState
+  hardware:
+    - {name: actuators, capability: aster.hardware.ActuatorGroup, required: true}
   executors:
-    - name: control
-      priority: 6
-      stack_bytes: 4096
-      queue_depth: 8
-      period_us: 1000
+    - {name: control, priority: 6, stack_bytes: 4096, queue_depth: 8, period_us: 1000}
 ```
 
-`implementation.header` 是 Package 导出的可编译 C++ header，不是 workspace 猜出的文件
-名；生成组合按统一约定以 instance 名构造该 Module。只有一个 Executor 时它自动成为
-ModuleContext 默认 Executor。声明多个 Executor 时必须恰好给一个添加 `default: true`，
-周期任务仍分别按自己的 `period_us` 绑定。
+`implementation.header` 是 Package 导出的可编译 C++ header。只有一个 Executor 时，它
+自动成为 `ModuleContext` 默认 Executor；多个 Executor 必须恰好声明一个默认项。工具在
+编译 C++ 之前校验依赖、端口类型、固定资源和放置约束。
 
-`robot.yaml` 创建实例并把端口绑定到逻辑名称，`deployment.yaml` 再决定实例落在哪个
-Node。跨板 Route、CAN ID 与 transport adapter 都由 compiler 生成，Module 不包含
-“如果在另一块板”分支。
+`robot.yaml` 创建实例并绑定逻辑端口与硬件能力，`deployment.yaml` 再决定实例放在哪个
+Node。跨节点 Route、wire ID 与 transport adapter 由编译器生成，Module 中不出现
+“如果部署在另一块板上”的代码分支。
