@@ -1,6 +1,6 @@
-# aster-docs
+# AsterCtrl Documentation
 
-Chinese-first, i18n-ready documentation for the distributed robot framework.
+Chinese-first, i18n-ready documentation for the distributed control framework.
 
 ```sh
 npm install

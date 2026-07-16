@@ -12,7 +12,7 @@ Schema Hash、最大编码长度、TypeSupport 和跨平台测试向量。
 ```yaml
 api_version: aster.dev/schema/v1alpha1
 kind: Message
-metadata: {name: ImuSample, namespace: robot.msg}
+metadata: {name: ImuSample, namespace: control.msg}
 spec:
   fields:
     - {name: acceleration, type: float32, unit: m/s2, array: 3}
@@ -22,7 +22,7 @@ spec:
 生成命令：
 
 ```sh
-asterctl schema generate robot-interfaces/schemas build/generated
+aster schema generate control-interfaces/schemas build/generated
 ```
 
 输出包含生成 C++ header、`schema.lock.yaml` 和
@@ -46,5 +46,5 @@ Schema 语言和 wire encoding 是两层。相同逻辑类型可以拥有紧凑 
 转换，不能把任意新旧固件混跑当成隐含承诺。
 
 领域消息应表达求解后的语义，而不是重新塞入某个设备的原始字段。例如原始按键事实、
-机器人操作意图与运动控制命令是不同契约。这样更换输入设备、部署位置或控制策略时，
+系统操作意图与运动控制命令是不同契约。这样更换输入设备、部署位置或控制策略时，
 consumer 不需要猜测事件来源。

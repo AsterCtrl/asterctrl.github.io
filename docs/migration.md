@@ -1,8 +1,8 @@
 ---
-title: 迁移现有机器人
+title: 迁移现有系统
 ---
 
-迁移的目标不是把旧目录原样搬进 Aster，而是保留经过确认的行为，同时显式建立代码、
+迁移的目标不是把旧目录原样搬进 AsterCtrl，而是保留经过确认的行为，同时显式建立代码、
 消息、硬件与部署边界。旧工程在迁移期间保持只读，并作为行为、参数和协议的权威输入。
 
 ## 建立行为矩阵
@@ -11,7 +11,7 @@ title: 迁移现有机器人
 
 | Legacy 行为 | 新所有者 | 契约 | 证据 | 状态 |
 | --- | --- | --- | --- | --- |
-| 运动模式切换 | product-control | RobotIntent → MotionCommand | 状态机测试 | planned |
+| 模式切换 | product-control | ControlIntent → ActuatorCommand | 状态机测试 | planned |
 | 传感器失联 | sensor Module | State + freshness | 故障注入 | planned |
 | 执行器限幅 | actuator adapter | ActuatorGroup | 协议向量 | planned |
 
@@ -38,7 +38,7 @@ Module 不创建私有线程，不在构造函数里睡眠重试，也不持有 
 上界，再生成 TypeSupport 和测试向量。旧协议保留 codec 与录制帧回放，业务 Module 使用
 规范化 SI 单位和语义消息。
 
-输入设备的原始事实、机器人意图和执行器命令应是不同契约。这样替换操作设备、移动控制
+输入设备的原始事实、系统意图和执行器命令应是不同契约。这样替换操作设备、移动控制
 Module 或接入自动规划时，不要求下游猜测来源。
 
 ## 增量闭环
@@ -57,6 +57,6 @@ Module 或接入自动规划时，不要求下游猜测来源。
 
 ## Legacy XRobot Module
 
-`LegacyModuleAdapter` 用于渐进接入旧 XRobot Module，使 workspace 可以先建立 Aster
+`LegacyModuleAdapter` 用于渐进接入旧 XRobot Module，使 workspace 可以先建立 AsterCtrl
 deployment 和版本锁。它不自动发现隐藏在构造函数、全局变量或私有线程中的依赖，也不
 保证旧 Module 满足热路径和生命周期约束。适配器是迁移工具，不是新 Package 的默认 API。

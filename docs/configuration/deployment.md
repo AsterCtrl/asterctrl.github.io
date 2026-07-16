@@ -10,7 +10,7 @@ Node 是用户定义的**逻辑 Runtime 身份**，例如 `motion_control`、`pe
 api_version: aster.dev/v1alpha1
 kind: Deployment
 metadata: {name: production}
-application: ../robots/mobile-robot.yaml
+application: ../applications/mobile-application.yaml
 
 nodes:
   motion_control:
@@ -24,7 +24,7 @@ nodes:
   perception_compute:
     runtime: aster-host
     target:
-      platform: linux-x86_64
+      bsp: bsp-linux/posix-x86_64
       hardware: ../hardware/perception-host.yaml
       profile: release
     instances: [localization, obstacle_detection]
@@ -36,7 +36,7 @@ nodes:
 ## Link 与路由
 
 Link 描述物理或进程间连接。一个总线只声明一次并列出 endpoint；Topic 路由从 Module
-端口图和实例放置自动推导。应用不创建 `robot-link` Module，也不手写跨板发布逻辑。
+端口图和实例放置自动推导。应用不创建专用 link Module，也不手写跨节点发布逻辑。
 
 ```yaml
 links:
@@ -78,7 +78,7 @@ route_rules:
 ## 编译与生成结果
 
 ```sh
-asterctl deploy compile \
+aster deploy compile \
   workspace.yaml \
   deployments/production.yaml \
   build/generated/production \

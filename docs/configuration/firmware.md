@@ -2,7 +2,7 @@
 title: 固件生成与烧录
 ---
 
-应用 workspace 不手写 `app_main`、设备构造或跨节点路由。它提交机器人图、hardware
+应用 workspace 不手写 `app_main`、设备构造或跨节点路由。它提交应用图、hardware
 profile、Deployment 和 lock；deployment compiler 为每个 MCU target 生成独立固件工程。
 
 ## 生成目标
@@ -64,4 +64,4 @@ aster_firmware_fault_code = (firmware_stage << 8) | runtime_status
 - 总线 capture、真实利用率、bus-off 与重连。
 - 控制周期 WCET、任务栈水位和长期运行。
 
-这些结果属于具体产品的构建记录，不应写成 Aster 对所有 target 的通用性能承诺。
+这些结果属于具体产品的构建记录，不应写成 AsterCtrl 对所有 target 的通用性能承诺。

@@ -1,12 +1,11 @@
 // @ts-check
 
 const config = {
-  title: 'Aster',
-  tagline: 'Build robot logic once. Deploy it anywhere.',
-  favicon: 'img/favicon.svg',
-  url: 'https://aster-robotics.github.io',
+  title: 'AsterCtrl',
+  tagline: 'Build control logic once. Deploy it anywhere.',
+  url: 'https://aster-ctrl.github.io',
   baseUrl: '/aster-docs/',
-  organizationName: 'aster-robotics',
+  organizationName: 'aster-ctrl',
   projectName: 'aster-docs',
   onBrokenLinks: 'throw',
   markdown: {
@@ -45,11 +44,7 @@ const config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Aster',
-      logo: {
-        alt: 'Aster',
-        src: 'img/favicon.svg',
-      },
+      title: 'AsterCtrl',
       items: [
         {to: '/docs/', label: '文档', position: 'left'},
         {to: '/docs/concept', label: '设计思想', position: 'left'},
@@ -57,7 +52,7 @@ const config = {
         {to: '/docs/configuration/deployment', label: '部署', position: 'left'},
         {to: '/docs/performance', label: '性能', position: 'left'},
         {type: 'localeDropdown', position: 'right'},
-        {href: 'https://github.com/aster-robotics', label: 'GitHub', position: 'right'},
+        {href: 'https://github.com/aster-ctrl', label: 'GitHub', position: 'right'},
       ],
     },
     footer: {
@@ -96,7 +91,7 @@ const config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Aster contributors`,
+      copyright: `Copyright © ${new Date().getFullYear()} AsterCtrl contributors`,
     },
   },
 };

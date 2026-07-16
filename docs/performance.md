@@ -2,7 +2,7 @@
 title: 性能、内存与实时性
 ---
 
-Aster 不用单个机器人或单块板的数字代表框架性能。结论必须来自可复现 benchmark、链接器
+AsterCtrl 不用单个应用或单块板的数字代表框架性能。结论必须来自可复现 benchmark、链接器
 map、目标板测量或 deployment report，并同时写明 target、工具链、配置和测试负载。
 
 ## 构建期报告
@@ -49,7 +49,7 @@ MCU profile 的 `Start` 之后不得依赖动态分配。测试至少应对完�
 ## CAN 预算口径
 
 经典 CAN 预算按每条消息的最大编码长度计算分片，并计入 arbitration、control、CRC、
-ACK、EOF、intermission 与最坏 bit stuffing。握手、心跳、时间同步和非 Aster 设备流量
+ACK、EOF、intermission 与最坏 bit stuffing。握手、心跳、时间同步和非 AsterCtrl 设备流量
 分别计入；总利用率超过 deployment 上限时构建失败。
 
 静态预算是保守上界，真实总线 capture 用于验证配置和发现突发、重试或未建模设备，不应

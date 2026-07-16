@@ -26,7 +26,7 @@ class Module {
 Runtime 先按生成顺序初始化 Executor，再初始化 Module。Module 在初始化阶段绑定周期
 任务，Runtime 随后校验并初始化调度器。启动顺序为 Executor、Module、调度器；关闭时
 先停止调度器，再逆序关闭 Module 和 Executor。某个 Executor、Module 或调度器失败时，
-Runtime 记录失败对象、阶段和 `Status`，不会继续启动半套机器人。
+Runtime 记录失败对象、阶段和 `Status`，不会继续启动不完整的应用图。
 
 构造函数不得启动线程、订阅 Topic 或访问硬件。可移植 Module 也不得自行创建
 FreeRTOS task 或 `std::thread`，而是从 `ModuleContext` 获取声明过的 Executor。
@@ -70,7 +70,7 @@ Status Chassis::Initialize(ModuleContext& context) noexcept {
 发现、运行期新增或字符串工厂语义。
 
 生成节点使用 `MappedPortResolver` 和 `MappedHardwareResolver` 把 Module 局部名映射为
-robot/hardware profile 中的整机名。映射只保存固定 `span<NameMapping>`，不拥有端点也不
+application/hardware profile 中的系统级名称。映射只保存固定 `span<NameMapping>`，不拥有端点也不
 分配内存；改名后仍由上游 registry 校验 Port kind、Schema Hash 或硬件 `TypeName()`。
 因此它不是弱类型 service locator，而是部署编译结果的一部分。
 

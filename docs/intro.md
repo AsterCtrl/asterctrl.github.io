@@ -1,17 +1,17 @@
 ---
 sidebar_position: 1
 slug: /
-title: Aster 概览
+title: AsterCtrl 概览
 ---
 
-Aster 是面向资源受限 MCU、Linux 进程和仿真环境的分布式机器人框架。应用开发者使用
-同一套 Module、Topic、Service、Action 和 Parameter API 描述机器人行为；部署编译器
+AsterCtrl 是面向资源受限 MCU、Linux 进程和仿真环境的分布式控制框架。应用开发者使用
+同一套 Module、Topic、Service、Action 和 Parameter API 描述控制行为；部署编译器
 根据目标配置决定模块运行位置、本地或远端路由、固定内存和平台适配。
 
 ```text
 Application graph + Deployment + Target profiles
                          |
-                  asterctl compile
+               aster deploy compile
              /           |           \
        MCU firmware   Linux process   simulation
              \           |           /
@@ -20,14 +20,14 @@ Application graph + Deployment + Target profiles
 
 ## 核心边界
 
-- **Aster Runtime** 管理生命周期、Executor、端口、参数与诊断。
-- **Aster Tools** 校验 Package、机器人图与部署图，并生成静态组合和报告。
-- **Aster Transports** 实现跨节点协议；应用看不到板间通信分支。
+- **AsterCtrl Runtime** 管理生命周期、Executor、端口、参数与诊断。
+- **AsterCtrl Tools** 校验 Package、应用图与部署图，并生成静态组合和报告。
+- **AsterCtrl Transports** 实现跨节点协议；应用看不到板间通信分支。
 - **Platform Backends** 适配 libxr、RTOS、裸机、Linux 或仿真能力。
-- **Domain Packages** 提供传感器、执行器、运动控制和机器人专属逻辑，但不属于框架核心。
+- **Domain Packages** 提供传感器、执行器、控制算法和产品专属逻辑，但不属于框架核心。
 
-Package 是否参与构建由 workspace 和机器人图决定。Aster 不要求安装任何特定电机、IMU、
-底盘或操作设备，也不规定机器人必须采用某一种机械结构。
+Package 是否参与构建由 workspace 和应用图决定。AsterCtrl 不要求安装任何特定电机、IMU、
+执行机构或操作设备，也不规定应用必须采用某一种被控对象。
 
 ## 当前实现范围
 

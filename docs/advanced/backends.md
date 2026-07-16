@@ -34,5 +34,5 @@ provider 只在 Host 构建期运行。生成固件仍是静态 C++，MCU 不加
 也不引入运行时插件系统。provider 路径必须位于所属 Package 内，重复 driver ID、越界路径、
 资源类型不匹配或 capability 不匹配都会使 deployment compile 失败。
 
-设备协议和配置生成应留在设备 Package；Aster Tools 只拼装资源、生命周期和 Registry。
+设备协议和配置生成应留在设备 Package；AsterCtrl Tools 只拼装资源、生命周期和 Registry。
 新增设备不得通过在 `hardware_codegen.py` 中增加产品名称分支来实现。

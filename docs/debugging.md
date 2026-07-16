@@ -21,7 +21,7 @@ Composition configure/initialize/start、CAN drain、scheduler poll、Executor d
 exchange 与 BSP poll；低字节是 `aster::runtime::Status`。值为 0 只表示尚未进入不可恢复
 Halt，不等于所有 Module 在线。
 
-跨板 deployment/schema/protocol 不一致不会带着半套机器人继续运行。`LinkControl`
+跨节点 deployment/schema/protocol 不一致不会让不完整的控制系统继续运行。`LinkControl`
 保持握手并让应用 Runtime 留在未启动状态，同时 hardware exchange 继续发送 Relax/安全
 命令。调试时应同时检查 fault code、握手统计、heartbeat state 和 CAN RX 错误计数。
 

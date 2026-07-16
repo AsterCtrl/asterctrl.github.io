@@ -32,8 +32,8 @@ type Copy = {
 
 const COPY: Record<'zh' | 'en', Copy> = {
   zh: {
-    description: '面向 MCU、Linux 与仿真的跨平台分布式机器人框架。',
-    lead: '应用描述机器人行为，部署描述运行位置。Aster 在构建期组合 Module、生成静态路由并绑定平台能力，让同一套上层逻辑跨硬件与操作系统部署。',
+    description: '面向 MCU、Linux 与仿真的跨平台分布式控制框架。',
+    lead: '应用描述控制行为，部署描述运行位置。AsterCtrl 在构建期组合 Module、生成静态路由并绑定平台能力，让同一套上层逻辑跨硬件与操作系统部署。',
     primaryAction: '开始使用',
     secondaryAction: '理解架构',
     entryTitle: '按任务进入文档',
@@ -50,7 +50,7 @@ const COPY: Record<'zh' | 'en', Copy> = {
     compileTitle: '部署编译器',
     targetTitle: '目标节点',
     boundaryTitle: '小而明确的框架核心',
-    boundaryLead: 'Aster 不内置某一种机器人。领域能力以独立 Package 组合，核心只提供可移植运行语义与生成工具。',
+    boundaryLead: 'AsterCtrl 不内置某一种被控对象。领域能力以独立 Package 组合，核心只提供可移植运行语义与生成工具。',
     boundaryItems: [
       {title: 'Runtime', description: '生命周期、Executor、参数、诊断与有界资源。'},
       {title: 'Contracts', description: 'Topic、Service、Action、Schema 与 TypeSupport。'},
@@ -59,8 +59,8 @@ const COPY: Record<'zh' | 'en', Copy> = {
     ],
   },
   en: {
-    description: 'A cross-platform distributed robotics framework for MCUs, Linux, and simulation.',
-    lead: 'Applications describe robot behavior; deployments describe where it runs. Aster composes Modules, generates static routes, and binds platform capabilities at build time so the same logic can move across hardware and operating systems.',
+    description: 'A cross-platform distributed control framework for MCUs, Linux, and simulation.',
+    lead: 'Applications describe control behavior; deployments describe where it runs. AsterCtrl composes Modules, generates static routes, and binds platform capabilities at build time so the same logic can move across hardware and operating systems.',
     primaryAction: 'Get started',
     secondaryAction: 'Understand the architecture',
     entryTitle: 'Enter by task',
@@ -77,7 +77,7 @@ const COPY: Record<'zh' | 'en', Copy> = {
     compileTitle: 'Deployment compiler',
     targetTitle: 'Target nodes',
     boundaryTitle: 'A small, explicit framework core',
-    boundaryLead: 'Aster does not embed one robot architecture. Domain capabilities are composed as Packages; the core provides portable runtime semantics and generation tools.',
+    boundaryLead: 'AsterCtrl does not embed one control architecture. Domain capabilities are composed as Packages; the core provides portable runtime semantics and generation tools.',
     boundaryItems: [
       {title: 'Runtime', description: 'Lifecycle, Executors, parameters, diagnostics, and bounded resources.'},
       {title: 'Contracts', description: 'Topic, Service, Action, Schema, and TypeSupport.'},
@@ -92,13 +92,13 @@ export default function Home(): React.ReactElement {
   const copy = COPY[i18n.currentLocale === 'en' ? 'en' : 'zh'];
 
   return (
-    <Layout title="Aster" description={copy.description}>
+    <Layout title="AsterCtrl" description={copy.description}>
       <main className={styles.page}>
         <section className={styles.hero}>
           <div className={`container ${styles.heroInner}`}>
             <div className={styles.heroCopy}>
               <div className={styles.eyebrow}><span /> STATIC / BOUNDED / DISTRIBUTED</div>
-              <h1>Aster</h1>
+              <h1>AsterCtrl</h1>
               <p>{copy.lead}</p>
               <div className={styles.heroActions}>
                 <Link className={styles.primaryAction} to="/docs/">{copy.primaryAction}</Link>
@@ -114,19 +114,19 @@ export default function Home(): React.ReactElement {
             <div className={styles.heroDiagram} aria-label={copy.architectureTitle}>
               <div className={styles.diagramColumn}>
                 <span>{copy.graphTitle}</span>
-                <div className={styles.diagramNode}><strong>motion</strong><small>Module</small></div>
-                <div className={styles.diagramNode}><strong>localization</strong><small>Module</small></div>
+                <div className={styles.diagramNode}><strong>acquisition</strong><small>Module</small></div>
+                <div className={styles.diagramNode}><strong>control_loop</strong><small>Module</small></div>
                 <div className={styles.diagramNode}><strong>safety</strong><small>Module</small></div>
               </div>
               <div className={styles.compilerBlock}>
-                <span>ASTERCTL</span>
+                <span>ASTER</span>
                 <strong>{copy.compileTitle}</strong>
                 <code>graph + profiles</code>
               </div>
               <div className={styles.diagramColumn}>
                 <span>{copy.targetTitle}</span>
-                <div className={`${styles.diagramNode} ${styles.targetNode}`}><strong>motion_control</strong><small>MCU target</small></div>
-                <div className={`${styles.diagramNode} ${styles.targetNode}`}><strong>perception_compute</strong><small>Linux target</small></div>
+                <div className={`${styles.diagramNode} ${styles.targetNode}`}><strong>realtime_control</strong><small>MCU target</small></div>
+                <div className={`${styles.diagramNode} ${styles.targetNode}`}><strong>supervisory_compute</strong><small>Linux target</small></div>
                 <div className={`${styles.diagramNode} ${styles.targetNode}`}><strong>simulation</strong><small>Host target</small></div>
               </div>
             </div>
@@ -159,7 +159,7 @@ export default function Home(): React.ReactElement {
               <p>{copy.architectureLead}</p>
             </div>
             <div className={styles.deploymentFlow}>
-              <div><span>01</span><strong>Robot / Application</strong><code>instances + ports</code></div>
+              <div><span>01</span><strong>Application</strong><code>instances + ports</code></div>
               <i aria-hidden="true">→</i>
               <div><span>02</span><strong>Deployment</strong><code>placement + QoS</code></div>
               <i aria-hidden="true">→</i>

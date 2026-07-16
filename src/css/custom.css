@@ -84,12 +84,6 @@ a {
   margin-right: 28px;
 }
 
-.navbar__logo {
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-}
-
 .navbar__title {
   color: var(--ifm-heading-color);
   font-size: 17px;

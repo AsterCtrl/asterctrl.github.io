@@ -19,5 +19,5 @@ title: 路线图
 后续 target 不能倒逼 MCU 热路径引入动态发现、无界分配或平台类型泄漏。
 
 Sim/real 共接口通过 simulator hardware profile 与 backend 复用同一 Module、Schema 和
-应用图；不能把物理引擎条件编译进控制源码。特定机器人的模型推导和参数脚本保留在对应
-领域 Package，而不是进入 Aster 核心。
+应用图；不能把物理引擎条件编译进控制源码。特定设备的模型推导和参数脚本保留在对应
+领域 Package，而不是进入 AsterCtrl 核心。

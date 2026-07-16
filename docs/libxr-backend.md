@@ -3,12 +3,12 @@ title: libxr Backend 与 BSP
 ---
 
 libxr 提供 MCU 上的时间、线程、同步、内存和 CAN/UART/SPI 等 I/O 基础能力。
-`aster-libxr-backend` 将这些能力适配为 Aster Runtime 与 hardware capability；libxr 类型
+`aster-libxr-backend` 将这些能力适配为 AsterCtrl Runtime 与 hardware capability；libxr 类型
 不能穿过可移植 API。
 
 ## 可移植层边界
 
-可移植 Module 只依赖标准 C++、Aster API、生成消息和抽象 capability。以下类型必须留在
+可移植 Module 只依赖标准 C++、AsterCtrl API、生成消息和抽象 capability。以下类型必须留在
 backend 或 BSP：
 
 - HAL handle、寄存器和中断号。
@@ -22,7 +22,7 @@ backend 或 BSP：
 ## 从 BSP 到 Module 的四层绑定
 
 1. BSP 导出芯片与板级资源，例如 CAN controller、UART、SPI、GPIO、DMA 和时钟。
-2. hardware profile 把这些资源组合成机器人接线与逻辑设备。
+2. hardware profile 把这些资源组合成系统接线与逻辑设备。
 3. driver adapter 根据协议、地址、方向、量程和标定构造类型化 capability。
 4. 生成入口把 capability 注册到节点，Module 按逻辑名解析。
 
@@ -58,8 +58,8 @@ Module 看见背压、时间戳和故障等不可忽略的语义。
 ## BSP Package
 
 BSP 是独立 Package，可导出多个 board target。它负责启动代码、链接脚本、时钟、引脚、
-外设资源和平台循环，但不包含机器人设备接线或业务参数。hardware profile 才决定某台
-机器人的传感器和执行器如何占用这些资源。
+外设资源和平台循环，但不包含系统设备接线或业务参数。hardware profile 才决定某台
+具体应用的传感器和执行器如何占用这些资源。
 
-通用的 libxr 修复可以向上游贡献；Aster 专属生命周期、TypeSupport、deployment 和路由
-留在 Aster 仓库，不把框架职责塞入 libxr。
+通用的 libxr 修复可以向上游贡献；AsterCtrl 专属生命周期、TypeSupport、deployment 和路由
+留在 AsterCtrl 仓库，不把框架职责塞入 libxr。
