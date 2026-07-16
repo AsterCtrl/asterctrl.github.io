@@ -1,7 +1,7 @@
 .page {
   --home-ink: #172426;
-  --home-muted: #5c6c6f;
-  --home-line: #cbd5d6;
+  --home-muted: #46575a;
+  --home-line: #c3ced0;
   --home-surface: #f5f8f8;
   --home-surface-strong: #ffffff;
   --home-teal: #087d78;
@@ -11,19 +11,49 @@
   color: var(--home-ink);
 }
 
+.page :global(.container) {
+  max-width: 1320px;
+}
+
 .hero {
-  min-height: 560px;
+  position: relative;
+  min-height: 620px;
   display: flex;
   align-items: stretch;
+  overflow: hidden;
   background-color: #f4f7f7;
-  background-image: var(--home-hero-light);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
   border-bottom: 1px solid var(--home-line);
+  isolation: isolate;
+}
+
+.heroVisual {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 50%;
+  overflow: hidden;
+  background: #e7edef;
+  border-left: 1px solid var(--home-line);
+}
+
+.heroVisual img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.heroVisualDark {
+  display: none;
 }
 
 .heroInner {
+  position: relative;
+  z-index: 1;
   min-height: inherit;
   display: flex;
   align-items: center;
@@ -33,7 +63,7 @@
 }
 
 .heroCopy {
-  width: min(48%, 560px);
+  width: min(47%, 600px);
 }
 
 .eyebrow,
@@ -45,7 +75,7 @@
   margin-bottom: 18px;
   color: var(--home-teal);
   font-family: var(--ifm-font-family-monospace);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0;
 }
@@ -63,7 +93,7 @@
   max-width: 580px;
   margin: 0;
   color: var(--home-ink);
-  font-size: 54px;
+  font-size: 56px;
   font-weight: 760;
   line-height: 1.04;
   letter-spacing: 0;
@@ -73,8 +103,8 @@
   max-width: 570px;
   margin: 25px 0 0;
   color: var(--home-muted);
-  font-size: 17px;
-  line-height: 1.78;
+  font-size: 18px;
+  line-height: 1.72;
 }
 
 .heroActions {
@@ -93,7 +123,7 @@
   padding: 0 20px;
   border: 1px solid var(--home-ink);
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   text-decoration: none;
   transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
@@ -145,7 +175,7 @@
 .heroFacts dt {
   color: var(--home-muted);
   font-family: var(--ifm-font-family-monospace);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -153,7 +183,7 @@
   margin: 5px 0 0;
   overflow-wrap: anywhere;
   color: var(--home-ink);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -179,7 +209,7 @@
 .evidenceCopy h2 {
   margin: 0;
   color: var(--home-ink);
-  font-size: 35px;
+  font-size: 38px;
   line-height: 1.18;
   letter-spacing: 0;
 }
@@ -193,8 +223,8 @@
 .evidenceCopy > p {
   margin: 0;
   color: var(--home-muted);
-  font-size: 15px;
-  line-height: 1.75;
+  font-size: 17px;
+  line-height: 1.7;
 }
 
 .entryGrid {
@@ -205,10 +235,10 @@
 
 .entryCard {
   position: relative;
-  min-height: 250px;
+  min-height: 260px;
   display: flex;
   flex-direction: column;
-  padding: 22px;
+  padding: 26px;
   overflow: hidden;
   background: var(--home-surface-strong);
   border: 1px solid var(--home-line);
@@ -256,7 +286,7 @@
   justify-content: space-between;
   color: var(--home-muted);
   font-family: var(--ifm-font-family-monospace);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -267,7 +297,7 @@
 .entryCard h3 {
   margin: 34px 0 12px;
   color: var(--home-ink);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.35;
   letter-spacing: 0;
 }
@@ -275,8 +305,8 @@
 .entryCard p {
   margin: 0 0 28px;
   color: var(--home-muted);
-  font-size: 14px;
-  line-height: 1.7;
+  font-size: 16px;
+  line-height: 1.65;
 }
 
 .entryArrow {
@@ -301,7 +331,7 @@
 }
 
 .sectionHeadingDark > p {
-  color: #9fb1b3;
+  color: #b4c2c3;
 }
 
 .layerGrid {
@@ -334,7 +364,7 @@
 .layerLabel {
   color: #58c9be;
   font-family: var(--ifm-font-family-monospace);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -350,7 +380,7 @@
   max-width: 250px;
   margin: 20px 0 22px;
   color: #edf4f3;
-  font-size: 23px;
+  font-size: 25px;
   line-height: 1.35;
   letter-spacing: 0;
 }
@@ -369,14 +399,14 @@
   border: 1px solid #35474a;
   border-radius: 4px;
   color: #c9d7d8;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .layer p {
   margin: 21px 0 0;
-  color: #9fb1b3;
-  font-size: 14px;
-  line-height: 1.72;
+  color: #b4c2c3;
+  font-size: 16px;
+  line-height: 1.68;
 }
 
 .deploymentRail {
@@ -392,7 +422,7 @@
   border-radius: 8px;
   color: #c9d7d8;
   font-family: var(--ifm-font-family-monospace);
-  font-size: 11px;
+  font-size: 12px;
   white-space: nowrap;
 }
 
@@ -415,7 +445,7 @@
 
 .deploymentRail strong {
   color: #58c9be;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .futureNode {
@@ -447,7 +477,7 @@
 
 .evidenceActions a {
   color: var(--home-teal);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
 }
 
@@ -470,20 +500,20 @@
 .evidenceGrid dt {
   color: var(--home-ink);
   font-family: var(--ifm-font-family-monospace);
-  font-size: 30px;
+  font-size: 32px;
   font-weight: 750;
 }
 
 .evidenceGrid dd {
   margin: 12px 0 0;
   color: var(--home-muted);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.5;
 }
 
 :global([data-theme='dark']) .page {
   --home-ink: #edf4f3;
-  --home-muted: #9fb0b1;
+  --home-muted: #b6c3c4;
   --home-line: #304144;
   --home-surface: #10191b;
   --home-surface-strong: #142123;
@@ -494,7 +524,18 @@
 
 :global([data-theme='dark']) .hero {
   background-color: #0d1415;
-  background-image: var(--home-hero-dark);
+}
+
+:global([data-theme='dark']) .heroVisual {
+  background: #111c1e;
+}
+
+:global([data-theme='dark']) .heroVisualLight {
+  display: none;
+}
+
+:global([data-theme='dark']) .heroVisualDark {
+  display: block;
 }
 
 :global([data-theme='dark']) .secondaryAction {
@@ -549,16 +590,15 @@
 
 @media (max-width: 996px) {
   .hero {
-    min-height: 620px;
-    background-position: 52% center;
+    min-height: 600px;
   }
 
   .heroCopy {
-    width: min(53%, 510px);
+    width: min(48%, 510px);
   }
 
   .hero h1 {
-    font-size: 48px;
+    font-size: 50px;
   }
 
   .layer {
@@ -578,16 +618,23 @@
 
 @media (max-width: 760px) {
   .hero {
-    min-height: 760px;
+    --hero-visual-height: min(58vw, 400px);
+    min-height: 0;
     align-items: flex-start;
-    background-position: 61% bottom;
-    background-size: auto 300px;
+  }
+
+  .heroVisual {
+    top: auto;
+    left: 0;
+    height: var(--hero-visual-height);
+    border-top: 1px solid var(--home-line);
+    border-left: 0;
   }
 
   .heroInner {
     align-items: flex-start;
     padding-top: 50px;
-    padding-bottom: 305px;
+    padding-bottom: calc(var(--hero-visual-height) + 34px);
   }
 
   .heroCopy {
@@ -596,11 +643,11 @@
 
   .hero h1 {
     max-width: 520px;
-    font-size: 42px;
+    font-size: 44px;
   }
 
   .heroCopy > p {
-    font-size: 15px;
+    font-size: 17px;
     line-height: 1.7;
   }
 
@@ -686,18 +733,16 @@
 
 @media (max-width: 430px) {
   .hero {
-    min-height: 700px;
-    background-position: right 40px bottom;
-    background-size: auto 190px;
+    --hero-visual-height: 220px;
   }
 
   .heroInner {
     padding-top: 36px;
-    padding-bottom: 195px;
+    padding-bottom: 244px;
   }
 
   .hero h1 {
-    font-size: 37px;
+    font-size: 40px;
   }
 
   .heroActions {
@@ -729,7 +774,7 @@
   }
 
   .heroFacts dd {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .entryGrid,
@@ -744,29 +789,27 @@
 
 @media (max-width: 430px) and (max-height: 720px) {
   .hero {
-    min-height: 550px;
-    background-position: right 34px bottom;
-    background-size: auto 130px;
+    --hero-visual-height: 126px;
   }
 
   .heroInner {
     padding-top: 25px;
-    padding-bottom: 133px;
+    padding-bottom: 142px;
   }
 
   .eyebrow {
     margin-bottom: 13px;
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .hero h1 {
-    font-size: 32px;
+    font-size: 34px;
   }
 
   .heroCopy > p {
     margin-top: 14px;
-    font-size: 13px;
-    line-height: 1.55;
+    font-size: 15px;
+    line-height: 1.6;
   }
 
   .heroActions {
@@ -776,7 +819,7 @@
   .primaryAction,
   .secondaryAction {
     min-height: 42px;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .heroFacts {

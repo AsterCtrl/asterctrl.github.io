@@ -1,4 +1,3 @@
-import type {CSSProperties} from 'react';
 import React from 'react';
 import Link from '@docusaurus/Link';
 import Layout from '@theme/Layout';
@@ -202,15 +201,27 @@ export default function Home(): React.ReactElement {
   const evidence = EVIDENCE[locale];
   const heroLight = useBaseUrl('/img/framework-hero-light.png');
   const heroDark = useBaseUrl('/img/framework-hero-dark.png');
-  const heroStyle = {
-    '--home-hero-light': `url("${heroLight}")`,
-    '--home-hero-dark': `url("${heroDark}")`,
-  } as CSSProperties;
 
   return (
     <Layout title={copy.title} description={copy.description}>
       <main className={styles.page}>
-        <section className={styles.hero} style={heroStyle}>
+        <section className={styles.hero}>
+          <div className={styles.heroVisual} aria-hidden="true">
+            <img
+              className={styles.heroVisualLight}
+              src={heroLight}
+              width={1360}
+              height={790}
+              alt=""
+            />
+            <img
+              className={styles.heroVisualDark}
+              src={heroDark}
+              width={1360}
+              height={790}
+              alt=""
+            />
+          </div>
           <div className={`container ${styles.heroInner}`}>
             <div className={styles.heroCopy}>
               <div className={styles.eyebrow}>

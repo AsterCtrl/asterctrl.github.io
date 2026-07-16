@@ -19,7 +19,7 @@
   --ifm-toc-border-color: #d8e0e1;
   --docusaurus-highlighted-code-line-bg: rgb(8 125 120 / 11%);
   --site-border: #d8e0e1;
-  --site-muted: #657477;
+  --site-muted: #536568;
   --site-code-surface: #f0f4f4;
   --site-blue: #3e6f9e;
   --site-amber: #b7791f;
@@ -42,7 +42,7 @@
   --ifm-toc-border-color: #304043;
   --docusaurus-highlighted-code-line-bg: rgb(88 201 190 / 12%);
   --site-border: #304043;
-  --site-muted: #9aabad;
+  --site-muted: #b2c0c2;
   --site-code-surface: #172426;
   --site-blue: #83acd0;
   --site-amber: #dfad61;
@@ -76,7 +76,7 @@ a {
 }
 
 .navbar__inner {
-  max-width: 1440px;
+  max-width: 1320px;
   margin: 0 auto;
 }
 
@@ -92,14 +92,14 @@ a {
 
 .navbar__title {
   color: var(--ifm-heading-color);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 760;
   letter-spacing: 0;
 }
 
 .navbar__link {
   color: var(--site-muted);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 650;
 }
 
@@ -143,7 +143,7 @@ a {
   min-height: 34px;
   padding: 7px 10px;
   color: var(--site-muted);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
 }
 
@@ -170,7 +170,7 @@ a {
 
 .menu__list-item-collapsible > .menu__link {
   color: var(--ifm-heading-color);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 760;
   text-transform: none;
 }
@@ -342,7 +342,7 @@ a {
 }
 
 .table-of-contents {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .table-of-contents__link {
@@ -439,7 +439,7 @@ a {
 
 @media (max-width: 760px) {
   .navbar__title {
-    font-size: 14px;
+    font-size: 16px;
   }
 
   .theme-doc-markdown {
