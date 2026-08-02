@@ -3,10 +3,10 @@
 const config = {
   title: 'AsterCtrl',
   tagline: 'Build control logic once. Deploy it anywhere.',
-  url: 'https://aster-ctrl.github.io',
-  baseUrl: '/aster-docs/',
-  organizationName: 'aster-ctrl',
-  projectName: 'aster-docs',
+  url: 'https://asterctrl.github.io',
+  baseUrl: '/',
+  organizationName: 'AsterCtrl',
+  projectName: 'asterctrl.github.io',
   onBrokenLinks: 'throw',
   markdown: {
     hooks: {
@@ -52,7 +52,7 @@ const config = {
         {to: '/docs/configuration/deployment', label: '部署', position: 'left'},
         {to: '/docs/performance', label: '性能', position: 'left'},
         {type: 'localeDropdown', position: 'right'},
-        {href: 'https://github.com/aster-ctrl', label: 'GitHub', position: 'right'},
+        {href: 'https://github.com/AsterCtrl/asterctrl.github.io', label: 'GitHub', position: 'right'},
       ],
     },
     footer: {
