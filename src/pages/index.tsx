@@ -12,6 +12,14 @@ type Entry = {
   tag: string;
 };
 
+type Repository = {
+  name: string;
+  role: string;
+  description: string;
+  technology: string;
+  href: string;
+};
+
 type Copy = {
   description: string;
   lead: string;
@@ -28,6 +36,10 @@ type Copy = {
   boundaryTitle: string;
   boundaryLead: string;
   boundaryItems: Array<{title: string; description: string}>;
+  repositoryTitle: string;
+  repositoryLead: string;
+  repositoryAction: string;
+  repositories: Repository[];
 };
 
 const COPY: Record<'zh' | 'en', Copy> = {
@@ -57,6 +69,39 @@ const COPY: Record<'zh' | 'en', Copy> = {
       {title: 'Deployment', description: '实例放置、QoS、静态路由、预算与版本锁定。'},
       {title: 'Backends', description: 'libxr、裸机、RTOS、Linux、仿真与传输适配。'},
     ],
+    repositoryTitle: '核心代码仓库',
+    repositoryLead: '框架按职责拆分为独立 Package 仓库。Workspace 锁定版本并组合依赖，应用工程不需要复制或修改框架源码。',
+    repositoryAction: '查看仓库',
+    repositories: [
+      {
+        name: 'aster-runtime',
+        role: '可移植运行时',
+        description: '定义 Module 生命周期、Executor、消息通信、参数与诊断，是不依赖具体平台的框架核心。',
+        technology: 'C++20 · PORTABLE',
+        href: 'https://github.com/AsterCtrl/aster-runtime',
+      },
+      {
+        name: 'aster-tools',
+        role: '部署编译工具',
+        description: '负责 Schema 校验、Package 解析、部署规划与确定性代码生成，提供 aster 命令行入口。',
+        technology: 'PYTHON · CLI',
+        href: 'https://github.com/AsterCtrl/aster-tools',
+      },
+      {
+        name: 'aster-transports',
+        role: '有界传输层',
+        description: '实现 Channel 与内部 RPC 的有界传输后端，包含构建期编译的经典 CAN 数据面与控制面。',
+        technology: 'C++20 · TRANSPORT',
+        href: 'https://github.com/AsterCtrl/aster-transports',
+      },
+      {
+        name: 'aster-libxr-backend',
+        role: 'libxr 平台适配',
+        description: '将 Runtime 与传输接口连接到 libxr 的时钟、I/O、队列、任务和诊断能力。',
+        technology: 'C++20 · BACKEND',
+        href: 'https://github.com/AsterCtrl/aster-libxr-backend',
+      },
+    ],
   },
   en: {
     description: 'A cross-platform distributed control framework for MCUs, Linux, and simulation.',
@@ -83,6 +128,39 @@ const COPY: Record<'zh' | 'en', Copy> = {
       {title: 'Contracts', description: 'Topic, Service, Action, Schema, and TypeSupport.'},
       {title: 'Deployment', description: 'Placement, QoS, static routes, budgets, and version locks.'},
       {title: 'Backends', description: 'libxr, bare metal, RTOS, Linux, simulation, and transport adapters.'},
+    ],
+    repositoryTitle: 'Core repositories',
+    repositoryLead: 'The framework is split into independently versioned Package repositories by responsibility. Workspaces lock and compose them without copying framework source into applications.',
+    repositoryAction: 'View repository',
+    repositories: [
+      {
+        name: 'aster-runtime',
+        role: 'Portable runtime',
+        description: 'Defines Module lifecycle, Executors, messaging, parameters, and diagnostics without depending on a specific platform.',
+        technology: 'C++20 · PORTABLE',
+        href: 'https://github.com/AsterCtrl/aster-runtime',
+      },
+      {
+        name: 'aster-tools',
+        role: 'Deployment compiler',
+        description: 'Validates schemas, resolves Packages, plans deployments, and generates deterministic code through the aster CLI.',
+        technology: 'PYTHON · CLI',
+        href: 'https://github.com/AsterCtrl/aster-tools',
+      },
+      {
+        name: 'aster-transports',
+        role: 'Bounded transports',
+        description: 'Provides bounded Channel and internal RPC transports, including the deployment-compiled classic CAN data plane.',
+        technology: 'C++20 · TRANSPORT',
+        href: 'https://github.com/AsterCtrl/aster-transports',
+      },
+      {
+        name: 'aster-libxr-backend',
+        role: 'libxr integration',
+        description: 'Connects Runtime and transport contracts to libxr clocks, I/O, queues, tasks, and diagnostics.',
+        technology: 'C++20 · BACKEND',
+        href: 'https://github.com/AsterCtrl/aster-libxr-backend',
+      },
     ],
   },
 };
@@ -181,6 +259,34 @@ export default function Home(): React.ReactElement {
                 <article key={item.title}>
                   <span>0{index + 1}</span><h3>{item.title}</h3><p>{item.description}</p>
                 </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.repositoryBand} id="repositories">
+          <div className="container">
+            <div className={styles.sectionHeading}>
+              <div><span>OPEN SOURCE</span><h2>{copy.repositoryTitle}</h2></div>
+              <p>{copy.repositoryLead}</p>
+            </div>
+            <div className={styles.repositoryGrid}>
+              {copy.repositories.map((repository, index) => (
+                <a
+                  className={styles.repositoryCard}
+                  href={repository.href}
+                  key={repository.name}
+                  rel="noopener noreferrer"
+                  target="_blank">
+                  <div className={styles.repositoryMeta}>
+                    <span>0{index + 1}</span>
+                    <span>{repository.technology}</span>
+                  </div>
+                  <h3>{repository.name}</h3>
+                  <strong>{repository.role}</strong>
+                  <p>{repository.description}</p>
+                  <span className={styles.repositoryLink}>{copy.repositoryAction}<span aria-hidden="true">↗</span></span>
+                </a>
               ))}
             </div>
           </div>

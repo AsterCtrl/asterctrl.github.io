@@ -52,7 +52,7 @@ const config = {
         {to: '/docs/configuration/deployment', label: '部署', position: 'left'},
         {to: '/docs/performance', label: '性能', position: 'left'},
         {type: 'localeDropdown', position: 'right'},
-        {href: 'https://github.com/AsterCtrl/asterctrl.github.io', label: 'GitHub', position: 'right'},
+        {href: 'https://github.com/AsterCtrl', label: 'GitHub', position: 'right'},
       ],
     },
     footer: {
@@ -85,6 +85,7 @@ const config = {
         {
           title: '生态',
           items: [
+            {label: 'AsterCtrl GitHub', href: 'https://github.com/AsterCtrl'},
             {label: 'XRobot', href: 'https://github.com/xrobot-org/XRobot'},
             {label: 'libxr', href: 'https://github.com/Jiu-xiao/libxr'},
             {label: 'AimRT', href: 'https://github.com/AimRT/AimRT'},

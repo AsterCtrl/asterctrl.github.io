@@ -278,7 +278,8 @@
 }
 
 .entryBand,
-.boundaryBand {
+.boundaryBand,
+.repositoryBand {
   padding: 78px 0 86px;
   background: var(--surface);
 }
@@ -496,12 +497,102 @@
   line-height: 1.65;
 }
 
+.repositoryBand {
+  background: #e7eded;
+  border-top: 1px solid var(--line);
+}
+
+.repositoryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.repositoryCard {
+  min-width: 0;
+  min-height: 285px;
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.repositoryCard:hover {
+  border-color: var(--teal);
+  box-shadow: 0 14px 34px rgb(30 54 58 / 10%);
+  color: var(--ink);
+  text-decoration: none;
+  transform: translateY(-3px);
+}
+
+.repositoryMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  color: #7a8b8e;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.repositoryMeta span:last-child {
+  overflow-wrap: anywhere;
+  color: var(--teal);
+  text-align: right;
+}
+
+.repositoryCard h3 {
+  margin: 32px 0 7px;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 24px;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+
+.repositoryCard > strong {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.repositoryCard > p {
+  margin: 14px 0 26px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.repositoryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  color: var(--teal);
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.repositoryLink > span {
+  font-size: 18px;
+  line-height: 1;
+}
+
 :global([data-theme='dark']) .page {
   --ink: #edf4f3;
   --muted: #b1c0c2;
   --line: #344548;
   --surface: #11191b;
   --paper: #172225;
+}
+
+:global([data-theme='dark']) .repositoryBand {
+  background: #101719;
 }
 
 :global([data-theme='dark']) .hero {
@@ -524,7 +615,9 @@
 :global([data-theme='dark']) .diagramNode strong,
 :global([data-theme='dark']) .sectionHeading h2,
 :global([data-theme='dark']) .entryCard h3,
-:global([data-theme='dark']) .boundaryGrid h3 {
+:global([data-theme='dark']) .boundaryGrid h3,
+:global([data-theme='dark']) .repositoryCard h3,
+:global([data-theme='dark']) .repositoryCard > strong {
   color: #edf4f3;
 }
 
@@ -541,7 +634,8 @@
   }
 
   .entryGrid,
-  .boundaryGrid {
+  .boundaryGrid,
+  .repositoryGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -627,7 +721,8 @@
 
   .entryBand,
   .boundaryBand,
-  .architectureBand {
+  .architectureBand,
+  .repositoryBand {
     padding: 60px 0 66px;
   }
 
@@ -637,11 +732,17 @@
 
   .entryGrid,
   .boundaryGrid,
-  .deploymentFlow {
+  .deploymentFlow,
+  .repositoryGrid {
     grid-template-columns: 1fr;
   }
 
   .entryCard {
     min-height: 230px;
+  }
+
+  .repositoryCard {
+    min-height: 260px;
+    padding: 24px;
   }
 }
