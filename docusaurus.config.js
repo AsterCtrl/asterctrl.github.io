@@ -2,7 +2,7 @@
 
 const config = {
   title: 'AsterCtrl',
-  tagline: 'Build control logic once. Deploy it anywhere.',
+  tagline: 'One application. Native Linux and Zephyr deployments.',
   url: 'https://asterctrl.github.io',
   baseUrl: '/',
   organizationName: 'AsterCtrl',
@@ -47,10 +47,10 @@ const config = {
       title: 'AsterCtrl',
       items: [
         {to: '/docs/', label: '文档', position: 'left'},
-        {to: '/docs/concept', label: '设计思想', position: 'left'},
+        {to: '/docs/graphs', label: '双图模型', position: 'left'},
         {to: '/docs/architecture', label: '架构', position: 'left'},
-        {to: '/docs/configuration/deployment', label: '部署', position: 'left'},
-        {to: '/docs/performance', label: '性能', position: 'left'},
+        {to: '/docs/deployment', label: '部署', position: 'left'},
+        {to: '/docs/transports', label: '通信', position: 'left'},
         {type: 'localeDropdown', position: 'right'},
         {href: 'https://github.com/AsterCtrl', label: 'GitHub', position: 'right'},
       ],
@@ -63,21 +63,21 @@ const config = {
           items: [
             {label: '框架概览', to: '/docs/'},
             {label: '环境搭建', to: '/docs/setup'},
-            {label: '基础编程', to: '/docs/basic/module'},
+            {label: '基础编程', to: '/docs/module'},
           ],
         },
         {
           title: '工程',
           items: [
-            {label: 'Workspace', to: '/docs/workspace'},
-            {label: '配置与部署', to: '/docs/configuration/overview'},
-            {label: '固件生成', to: '/docs/configuration/firmware'},
+            {label: 'Application Graph', to: '/docs/graphs'},
+            {label: '配置与部署', to: '/docs/deployment'},
+            {label: 'Zephyr 板卡', to: '/docs/zephyr'},
           ],
         },
         {
           title: '验证',
           items: [
-            {label: '性能与资源', to: '/docs/performance'},
+            {label: '通信与资源', to: '/docs/transports'},
             {label: '调试', to: '/docs/debugging'},
             {label: '路线图', to: '/docs/roadmap'},
           ],
@@ -86,9 +86,8 @@ const config = {
           title: '生态',
           items: [
             {label: 'AsterCtrl GitHub', href: 'https://github.com/AsterCtrl'},
-            {label: 'XRobot', href: 'https://github.com/xrobot-org/XRobot'},
-            {label: 'libxr', href: 'https://github.com/Jiu-xiao/libxr'},
-            {label: 'AimRT', href: 'https://github.com/AimRT/AimRT'},
+            {label: 'AsterCtrl Core', href: 'https://github.com/AsterCtrl/AsterCtrl'},
+            {label: 'Zephyr Boards', href: 'https://github.com/AsterCtrl/asterctrl-boards'},
           ],
         },
       ],

@@ -1,9 +1,9 @@
-api_version: aster.dev/v1alpha1
+api_version: aster.dev/v1alpha2
 kind: Package
 
 metadata:
   name: aster-docs
-  version: 0.1.0-dev
+  version: 0.2.0-alpha.1
   license: Apache-2.0
 
 spec:

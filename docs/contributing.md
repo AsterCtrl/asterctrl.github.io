@@ -1,12 +1,14 @@
 ---
-title: 贡献与 Git 工作流
+title: 参与贡献
 ---
 
-每个复用 Package 是独立 Git 仓库。提交应对应可验证里程碑，并在提交前运行该仓库的
-构建、测试和格式检查。不要提交 build、缓存或可重新生成的输出。
+# 工程规范
 
-向外部项目迁移时保持上游源码只读。libxr 只接受脱离 AsterCtrl 也成立的通用改进；AsterCtrl 的
-生命周期、部署、路由和 TypeSupport 属于框架仓库。
+使用 GitHub Flow 和 Squash Merge。提交主题格式为 `scope: lowercase summary`，公共 Interface
+变更同时更新测试、Changelog 和文档。
 
-新增公共 API 必须说明有界性、执行上下文、线程安全、分配行为和失败语义。文档示例应
-参与编译或测试；性能结论必须链接可复现 benchmark 或生成报告。
+PR 必须通过 C++ format/tidy、Host sanitizer、Graph fixture、wire compatibility、Zephyr
+构建、文档构建、依赖许可证和禁止依赖扫描。
+
+平台行为应放在现有 Seam 的 Adapter 内。只有出现真实的第二种 Implementation 时才新增
+Seam，避免把平台细节扩散到每个业务 Module。

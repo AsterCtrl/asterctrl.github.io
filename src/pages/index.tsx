@@ -44,20 +44,20 @@ type Copy = {
 
 const COPY: Record<'zh' | 'en', Copy> = {
   zh: {
-    description: '面向 MCU、Linux 与仿真的跨平台分布式控制框架。',
-    lead: '应用描述控制行为，部署描述运行位置。AsterCtrl 在构建期组合 Module、生成静态路由并绑定平台能力，让同一套上层逻辑跨硬件与操作系统部署。',
+    description: '原生运行于 Zephyr 与 Linux 的确定性控制框架。',
+    lead: 'Application 描述控制行为，Deployment 描述运行位置。AsterCtrl 在构建期解析 Module、静态路由与资源预算，让同一套业务逻辑原生运行于 MCU 和小电脑。',
     primaryAction: '开始使用',
     secondaryAction: '理解架构',
     entryTitle: '按任务进入文档',
     entryLead: '从 Module 开发、整机配置、部署编译或链路诊断开始，不需要先理解全部实现。',
     entries: [
       {index: '01', title: '搭建 Workspace', description: '安装工具，解析 Package，并完成首个 Host 构建。', to: '/docs/setup', tag: 'START'},
-      {index: '02', title: '开发 Module', description: '使用生命周期、端口和 Executor 编写可移植逻辑。', to: '/docs/basic/module', tag: 'CODE'},
-      {index: '03', title: '编译部署图', description: '将逻辑实例放到目标节点，自动生成本地与跨节点路由。', to: '/docs/configuration/deployment', tag: 'DEPLOY'},
+      {index: '02', title: '开发 Module', description: '使用生命周期、端口和 Executor 编写可移植逻辑。', to: '/docs/module', tag: 'CODE'},
+      {index: '03', title: '编译部署图', description: '将逻辑实例放到目标节点，自动生成本地与跨节点路由。', to: '/docs/deployment', tag: 'DEPLOY'},
       {index: '04', title: '分析运行状态', description: '检查消息年龄、deadline、队列水位和链路统计。', to: '/docs/debugging', tag: 'DEBUG'},
     ],
     architectureTitle: '逻辑、部署与平台各自独立',
-    architectureLead: 'Node 是逻辑运行身份，不是板卡型号。替换硬件、RTOS、进程或传输后端时，Module 和消息契约保持不变。',
+    architectureLead: 'Node 是逻辑运行身份，不是板卡型号。替换硬件、Zephyr/Linux 进程或 Transport Adapter 时，Module 和消息契约保持不变。',
     graphTitle: '应用图',
     compileTitle: '部署编译器',
     targetTitle: '目标节点',
@@ -65,59 +65,45 @@ const COPY: Record<'zh' | 'en', Copy> = {
     boundaryLead: 'AsterCtrl 不内置某一种被控对象。领域能力以独立 Package 组合，核心只提供可移植运行语义与生成工具。',
     boundaryItems: [
       {title: 'Runtime', description: '生命周期、Executor、参数、诊断与有界资源。'},
-      {title: 'Contracts', description: 'Topic、Service、Action、Schema 与 TypeSupport。'},
+      {title: 'Contracts', description: 'Channel、RPC、bounded Protobuf 与 TypeSupport。'},
       {title: 'Deployment', description: '实例放置、QoS、静态路由、预算与版本锁定。'},
-      {title: 'Backends', description: 'libxr、裸机、RTOS、Linux、仿真与传输适配。'},
+      {title: 'Adapters', description: 'Zephyr、Linux、Hardware、Clock 与 Transport 实现。'},
     ],
-    repositoryTitle: '核心代码仓库',
-    repositoryLead: '框架按职责拆分为独立 Package 仓库。Workspace 锁定版本并组合依赖，应用工程不需要复制或修改框架源码。',
+    repositoryTitle: '两个官方代码仓库',
+    repositoryLead: 'Runtime、CLI、协议和 Transport 在核心单仓中原子演进；官方 Zephyr board 独立发布。',
     repositoryAction: '查看仓库',
     repositories: [
       {
-        name: 'aster-runtime',
-        role: '可移植运行时',
-        description: '定义 Module 生命周期、Executor、消息通信、参数与诊断，是不依赖具体平台的框架核心。',
-        technology: 'C++20 · PORTABLE',
-        href: 'https://github.com/AsterCtrl/aster-runtime',
+        name: 'AsterCtrl',
+        role: '核心框架单仓',
+        description: '包含 C++20 Runtime、aster CLI、双图编译器、bounded Protobuf、Transport、示例与技术文档。',
+        technology: 'C++20 · PYTHON',
+        href: 'https://github.com/AsterCtrl/AsterCtrl',
       },
       {
-        name: 'aster-tools',
-        role: '部署编译工具',
-        description: '负责 Schema 校验、Package 解析、部署规划与确定性代码生成，提供 aster 命令行入口。',
-        technology: 'PYTHON · CLI',
-        href: 'https://github.com/AsterCtrl/aster-tools',
-      },
-      {
-        name: 'aster-transports',
-        role: '有界传输层',
-        description: '实现 Channel 与内部 RPC 的有界传输后端，包含构建期编译的经典 CAN 数据面与控制面。',
-        technology: 'C++20 · TRANSPORT',
-        href: 'https://github.com/AsterCtrl/aster-transports',
-      },
-      {
-        name: 'aster-libxr-backend',
-        role: 'libxr 平台适配',
-        description: '将 Runtime 与传输接口连接到 libxr 的时钟、I/O、队列、任务和诊断能力。',
-        technology: 'C++20 · BACKEND',
-        href: 'https://github.com/AsterCtrl/aster-libxr-backend',
+        name: 'asterctrl-boards',
+        role: '官方 Zephyr 板卡',
+        description: '提供 dev_c 与 mc02 的 Zephyr board、Devicetree、Kconfig 和最小硬件 smoke。',
+        technology: 'ZEPHYR · DTS',
+        href: 'https://github.com/AsterCtrl/asterctrl-boards',
       },
     ],
   },
   en: {
-    description: 'A cross-platform distributed control framework for MCUs, Linux, and simulation.',
-    lead: 'Applications describe control behavior; deployments describe where it runs. AsterCtrl composes Modules, generates static routes, and binds platform capabilities at build time so the same logic can move across hardware and operating systems.',
+    description: 'A deterministic control framework native to Zephyr and Linux.',
+    lead: 'Applications describe control behavior; deployments describe where it runs. AsterCtrl resolves Modules, static routes, and resource budgets before the build so the same business logic runs natively on MCUs and Linux computers.',
     primaryAction: 'Get started',
     secondaryAction: 'Understand the architecture',
     entryTitle: 'Enter by task',
     entryLead: 'Start with Module development, system configuration, deployment compilation, or link diagnostics without reading every implementation detail first.',
     entries: [
       {index: '01', title: 'Set up a Workspace', description: 'Install the tools, resolve Packages, and complete a Host build.', to: '/docs/setup', tag: 'START'},
-      {index: '02', title: 'Develop a Module', description: 'Write portable logic with lifecycle, ports, and Executors.', to: '/docs/basic/module', tag: 'CODE'},
-      {index: '03', title: 'Compile a deployment', description: 'Place logical instances and generate local or remote routes.', to: '/docs/configuration/deployment', tag: 'DEPLOY'},
+      {index: '02', title: 'Develop a Module', description: 'Write portable logic with lifecycle, ports, and Executors.', to: '/docs/module', tag: 'CODE'},
+      {index: '03', title: 'Compile a deployment', description: 'Place logical instances and generate local or remote routes.', to: '/docs/deployment', tag: 'DEPLOY'},
       {index: '04', title: 'Inspect runtime state', description: 'Trace message age, deadlines, queue watermarks, and link metrics.', to: '/docs/debugging', tag: 'DEBUG'},
     ],
     architectureTitle: 'Logic, deployment, and platform stay separate',
-    architectureLead: 'A Node is a logical runtime identity, not a board model. Modules and message contracts remain stable when hardware, RTOS, process, or transport backends change.',
+    architectureLead: 'A Node is a logical runtime identity, not a board model. Modules and message contracts remain stable when hardware, Zephyr/Linux placement, or Transport Adapters change.',
     graphTitle: 'Application graph',
     compileTitle: 'Deployment compiler',
     targetTitle: 'Target nodes',
@@ -125,41 +111,27 @@ const COPY: Record<'zh' | 'en', Copy> = {
     boundaryLead: 'AsterCtrl does not embed one control architecture. Domain capabilities are composed as Packages; the core provides portable runtime semantics and generation tools.',
     boundaryItems: [
       {title: 'Runtime', description: 'Lifecycle, Executors, parameters, diagnostics, and bounded resources.'},
-      {title: 'Contracts', description: 'Topic, Service, Action, Schema, and TypeSupport.'},
+      {title: 'Contracts', description: 'Channel, RPC, bounded Protobuf, and TypeSupport.'},
       {title: 'Deployment', description: 'Placement, QoS, static routes, budgets, and version locks.'},
-      {title: 'Backends', description: 'libxr, bare metal, RTOS, Linux, simulation, and transport adapters.'},
+      {title: 'Adapters', description: 'Zephyr, Linux, Hardware, Clock, and Transport implementations.'},
     ],
-    repositoryTitle: 'Core repositories',
-    repositoryLead: 'The framework is split into independently versioned Package repositories by responsibility. Workspaces lock and compose them without copying framework source into applications.',
+    repositoryTitle: 'Two official repositories',
+    repositoryLead: 'Runtime, CLI, protocol, and Transports evolve atomically in the core monorepo; official Zephyr boards are released separately.',
     repositoryAction: 'View repository',
     repositories: [
       {
-        name: 'aster-runtime',
-        role: 'Portable runtime',
-        description: 'Defines Module lifecycle, Executors, messaging, parameters, and diagnostics without depending on a specific platform.',
-        technology: 'C++20 · PORTABLE',
-        href: 'https://github.com/AsterCtrl/aster-runtime',
+        name: 'AsterCtrl',
+        role: 'Core framework monorepo',
+        description: 'C++20 Runtime, aster CLI, dual-graph compiler, bounded Protobuf, Transports, examples, and technical documentation.',
+        technology: 'C++20 · PYTHON',
+        href: 'https://github.com/AsterCtrl/AsterCtrl',
       },
       {
-        name: 'aster-tools',
-        role: 'Deployment compiler',
-        description: 'Validates schemas, resolves Packages, plans deployments, and generates deterministic code through the aster CLI.',
-        technology: 'PYTHON · CLI',
-        href: 'https://github.com/AsterCtrl/aster-tools',
-      },
-      {
-        name: 'aster-transports',
-        role: 'Bounded transports',
-        description: 'Provides bounded Channel and internal RPC transports, including the deployment-compiled classic CAN data plane.',
-        technology: 'C++20 · TRANSPORT',
-        href: 'https://github.com/AsterCtrl/aster-transports',
-      },
-      {
-        name: 'aster-libxr-backend',
-        role: 'libxr integration',
-        description: 'Connects Runtime and transport contracts to libxr clocks, I/O, queues, tasks, and diagnostics.',
-        technology: 'C++20 · BACKEND',
-        href: 'https://github.com/AsterCtrl/aster-libxr-backend',
+        name: 'asterctrl-boards',
+        role: 'Official Zephyr boards',
+        description: 'Zephyr board definitions, Devicetree, Kconfig, and smoke applications for dev_c and mc02.',
+        technology: 'ZEPHYR · DTS',
+        href: 'https://github.com/AsterCtrl/asterctrl-boards',
       },
     ],
   },
@@ -183,9 +155,9 @@ export default function Home(): React.ReactElement {
                 <Link className={styles.secondaryAction} to="/docs/architecture">{copy.secondaryAction}</Link>
               </div>
               <dl className={styles.heroFacts}>
-                <div><dt>API</dt><dd>Topic · Service · Action</dd></div>
+                <div><dt>INTERFACE</dt><dd>Channel · RPC</dd></div>
                 <div><dt>EXECUTION</dt><dd>Static · bounded</dd></div>
-                <div><dt>TARGETS</dt><dd>MCU · Linux · Sim</dd></div>
+                <div><dt>TARGETS</dt><dd>Zephyr · Linux · Sim</dd></div>
               </dl>
             </div>
 
@@ -241,7 +213,7 @@ export default function Home(): React.ReactElement {
               <i aria-hidden="true">→</i>
               <div><span>02</span><strong>Deployment</strong><code>placement + QoS</code></div>
               <i aria-hidden="true">→</i>
-              <div><span>03</span><strong>Target Profiles</strong><code>BSP + OS + links</code></div>
+              <div><span>03</span><strong>Target Profiles</strong><code>board + OS + links</code></div>
               <i aria-hidden="true">→</i>
               <div><span>04</span><strong>Generated Runtime</strong><code>composition + routes</code></div>
             </div>

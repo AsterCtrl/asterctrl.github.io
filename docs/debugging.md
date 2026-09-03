@@ -1,35 +1,14 @@
 ---
-title: 调试与可观测性
+title: 调试与诊断
 ---
 
-框架诊断覆盖 Module 生命周期、Executor 超时、Route 频率、字节率、丢弃、合并、重试、
-队列高水位、消息年龄、heartbeat 和时钟同步状态。
+# 从 Resolved Graph 开始
 
-诊断本身必须有带宽预算。低优先级日志不能阻塞 ISR、控制 Executor 或 CAN Fast Path。
-最终工具应能从 lock 和运行指标解释一条消息经过了哪些节点与 backend。
+先运行 `aster graph` 检查实例放置、Port 类型、Provider、Route 和预算，再检查
+`deployment.lock.yaml` 是否与运行节点报告的 Deployment ID 和 Schema Hash 一致。
 
-## MCU 启动故障
+Runtime 状态为 staged、starting、ready、degraded、failed、stopping。已知节点离线表示
+非 ready，不表示拓扑发生变化。
 
-生成固件提供全局变量：
-
-```text
-aster_firmware_fault_code = (stage << 8) | status
-```
-
-高字节 stage 区分 BSP initialize、hardware initialize/start、CAN endpoint/bind/init、
-Composition configure/initialize/start、CAN drain、scheduler poll、Executor drain、hardware
-exchange 与 BSP poll；低字节是 `aster::runtime::Status`。值为 0 只表示尚未进入不可恢复
-Halt，不等于所有 Module 在线。
-
-跨节点 deployment/schema/protocol 不一致不会让不完整的控制系统继续运行。`LinkControl`
-保持握手并让应用 Runtime 留在未启动状态，同时 hardware exchange 继续发送 Relax/安全
-命令。调试时应同时检查 fault code、握手统计、heartbeat state 和 CAN RX 错误计数。
-
-## 传输指标
-
-Fast Topic 至少公开发送消息、写失败和 `rate_limited`；Ingress 公开陈旧消息、解码失败、
-sequence gap 与分片错误；Reliable Path 公开 ACK、重复、重试和超时。畸形应用帧由 backend
-计数并丢弃，不能升级为整机 Halt。低优先级 UI/遥测的节流不能掩盖控制 Route deadline。
-
-当前这些指标主要通过 host/fault-injection 测试和 debugger 读取。统一的 Linux CLI、
-长期指标存储与板上 stack-watermark 页面属于后续可观测性里程碑。
+Transport 诊断至少包含发送/接收、背压、丢弃、重传、陈旧数据、解码失败、握手不兼容、
+队列水位和链路预算。不要把单元测试通过写成“实机已验证”。
