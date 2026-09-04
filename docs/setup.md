@@ -12,12 +12,16 @@ title: 安装与首个工程
 ```bash
 git clone https://github.com/AsterCtrl/AsterCtrl.git
 cd AsterCtrl
-uv sync --all-groups
+git checkout v0.2.0-alpha.1
+uv sync --frozen --all-groups
 uv run aster doctor
 cmake --preset host-debug
 cmake --build --preset host-debug
 ctest --preset host-debug
 ```
+
+上面的标签是当前公开 alpha。跟踪开发分支时可省略 `git checkout`，但不要把 `main` 构建
+与带标签的发布工件混用。
 
 创建最小工程：
 

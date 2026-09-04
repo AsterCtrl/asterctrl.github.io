@@ -8,6 +8,10 @@ title: AsterCtrl 0.2
 AsterCtrl 是面向机器人和嵌入式控制的确定性框架。Linux 与 Zephyr 都运行
 AsterCtrl 自己的 Runtime；AimRT 只是设计参考，不是依赖或生成目标。
 
+> 当前公开版本是
+> [`v0.2.0-alpha.1`](https://github.com/AsterCtrl/AsterCtrl/releases/tag/v0.2.0-alpha.1)。
+> 这是供架构验证和集成试用的 compile-only alpha，不是实板验证完成的正式版。
+
 业务代码只实现 Module。Application Graph 描述 Module Instance 以及 Channel/RPC
 关系，Deployment Graph 决定它们运行在哪台 Linux 主机或哪块 Zephyr 板卡，以及
 采用哪个 Hardware、Clock 和 Transport Adapter。

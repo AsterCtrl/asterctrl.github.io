@@ -51,6 +51,7 @@ const config = {
         {to: '/docs/architecture', label: '架构', position: 'left'},
         {to: '/docs/deployment', label: '部署', position: 'left'},
         {to: '/docs/transports', label: '通信', position: 'left'},
+        {href: 'https://github.com/AsterCtrl/AsterCtrl/releases/tag/v0.2.0-alpha.1', label: 'v0.2.0-alpha.1', position: 'right'},
         {type: 'localeDropdown', position: 'right'},
         {href: 'https://github.com/AsterCtrl', label: 'GitHub', position: 'right'},
       ],

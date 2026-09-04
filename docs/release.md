@@ -4,11 +4,30 @@ title: 发布与开发日志
 
 # v0.2 发布门禁
 
-`v0.2.0-alpha.1` 允许两块板只完成 compile/link/size gate。正式 `v0.2.0` 必须完成 dev_c、
-mc02 实板 smoke 和 CAN 跨节点丢包/重启测试。
+## 当前版本
 
-Release 包含源码、Linux artifact、两板固件、Schema、Lock、校验和、SBOM、Changelog、
-Development Log 和回滚说明。USB 真实枚举未作为门禁时，Release Notes 必须明确标注。
+[`v0.2.0-alpha.1`](https://github.com/AsterCtrl/AsterCtrl/releases/tag/v0.2.0-alpha.1)
+已于 2026-09-04 发布。它通过了：
+
+- Linux x86_64 与 arm64 构建，GCC/Clang、ASan/UBSan/TSan 和 SocketCAN `vcan` 测试；
+- bounded Protobuf、双图解析、确定性 Lock、负向 Fixture 与文档门禁；
+- Zephyr `native_sim` 与 QEMU Runtime smoke；
+- `dev_c`、`mc02` 及生成式 CAN/USB 节点的 compile/link/size gate；
+- 固定依赖准备完成后的离线复建。
+
+发布页提供 Linux 包、compile-only Zephyr 固件、Schema/Lock/开发日志元数据、CycloneDX
+SBOM 和 `SHA256SUMS`。发布工件均由标签源码重新构建，不把主分支临时产物直接升级为发布包。
+
+## Alpha 边界
+
+`v0.2.0-alpha.1` 用于架构验证和集成试用，不代表硬件验收完成。它尚未完成：
+
+- `dev_c` 与 `mc02` 的 console、clock、CAN、UART、SPI、watchdog 实板 smoke；
+- USB CDC ACM 真实枚举；
+- CAN 跨节点丢包、乱序、重启和恢复测试。
+
+正式 `v0.2.0` 必须完成两块板实测和 CAN 跨节点故障测试；USB 真实枚举若仍未完成，
+Release Notes 必须继续明确标注。
 
 正式版验证完成后，旧核心仓库只读归档并从官网导航、组织置顶和活跃 Workspace 移除，历史
 仍可通过原 URL 查阅。

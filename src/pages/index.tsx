@@ -23,6 +23,7 @@ type Repository = {
 type Copy = {
   description: string;
   lead: string;
+  releaseLabel: string;
   primaryAction: string;
   secondaryAction: string;
   entryTitle: string;
@@ -46,6 +47,7 @@ const COPY: Record<'zh' | 'en', Copy> = {
   zh: {
     description: '原生运行于 Zephyr 与 Linux 的确定性控制框架。',
     lead: 'Application 描述控制行为，Deployment 描述运行位置。AsterCtrl 在构建期解析 Module、静态路由与资源预算，让同一套业务逻辑原生运行于 MCU 和小电脑。',
+    releaseLabel: 'v0.2.0-alpha.1 已发布 · COMPILE-ONLY',
     primaryAction: '开始使用',
     secondaryAction: '理解架构',
     entryTitle: '按任务进入文档',
@@ -92,6 +94,7 @@ const COPY: Record<'zh' | 'en', Copy> = {
   en: {
     description: 'A deterministic control framework native to Zephyr and Linux.',
     lead: 'Applications describe control behavior; deployments describe where it runs. AsterCtrl resolves Modules, static routes, and resource budgets before the build so the same business logic runs natively on MCUs and Linux computers.',
+    releaseLabel: 'v0.2.0-alpha.1 released · COMPILE-ONLY',
     primaryAction: 'Get started',
     secondaryAction: 'Understand the architecture',
     entryTitle: 'Enter by task',
@@ -148,6 +151,13 @@ export default function Home(): React.ReactElement {
           <div className={`container ${styles.heroInner}`}>
             <div className={styles.heroCopy}>
               <div className={styles.eyebrow}><span /> STATIC / BOUNDED / DISTRIBUTED</div>
+              <a
+                className={styles.releaseTag}
+                href="https://github.com/AsterCtrl/AsterCtrl/releases/tag/v0.2.0-alpha.1"
+                rel="noopener noreferrer"
+                target="_blank">
+                {copy.releaseLabel}<span aria-hidden="true">↗</span>
+              </a>
               <h1>AsterCtrl</h1>
               <p>{copy.lead}</p>
               <div className={styles.heroActions}>
