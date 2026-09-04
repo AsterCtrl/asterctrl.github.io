@@ -85,7 +85,7 @@ const COPY: Record<'zh' | 'en', Copy> = {
       {
         name: 'asterctrl-boards',
         role: '官方 Zephyr 板卡',
-        description: '提供 dev_c 与 mc02 的 Zephyr board、Devicetree、Kconfig 和最小硬件 smoke。',
+        description: '提供 dev_c 与 mc02 的 Zephyr board、Devicetree、qualification 固件和可校验证据记录。',
         technology: 'ZEPHYR · DTS',
         href: 'https://github.com/AsterCtrl/asterctrl-boards',
       },
@@ -132,7 +132,7 @@ const COPY: Record<'zh' | 'en', Copy> = {
       {
         name: 'asterctrl-boards',
         role: 'Official Zephyr boards',
-        description: 'Zephyr board definitions, Devicetree, Kconfig, and smoke applications for dev_c and mc02.',
+        description: 'Zephyr board definitions, qualification firmware, and verifiable evidence records for dev_c and mc02.',
         technology: 'ZEPHYR · DTS',
         href: 'https://github.com/AsterCtrl/asterctrl-boards',
       },
