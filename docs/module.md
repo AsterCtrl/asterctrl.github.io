@@ -15,4 +15,5 @@ Parameter、Clock 和 Allocator。保存窄句柄，不保存平台对象。Hard
 “仿真分支”，也不得直接使用 POSIX、Zephyr 或芯片 HAL；算法与硬件之间通过
 Channel/RPC 交互。
 
-注册表在所有 Module 初始化后封闭，因此运行期间新增 Topic、RPC 或 Route 会失败。
+注册表在所有 Module 初始化后封闭，因此运行期间新增 Topic 或 RPC 会失败。Route
+属于旧跨节点生成路径，不是当前 Linux Module 的注册接口。

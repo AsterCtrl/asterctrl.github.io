@@ -11,7 +11,10 @@ CAN/SocketCAN 和 USB CDC ACM 已有协议、Adapter 与旧生成 Node 回归实
 新启动器可选择的后端。它们不能作为 v1alpha3 跨节点部署已经完成的证据。物理协议细节
 仍封装在 Adapter 内部，不进入业务 Module Interface。
 
-CAN/SocketCAN 支持构建期 Route ID、优先级、分片/重组、可靠 Channel 与 RPC、超时、
+## 旧 v1alpha2 Adapter 回归实现（不可由 `aster run` 选择）
+
+以下 CAN/SocketCAN 与 USB 细节描述的是保留的 v1alpha2 回归实现，不是当前 Launcher 的
+可配置后端。CAN/SocketCAN 支持构建期 Route ID、优先级、分片/重组、可靠 Channel 与 RPC、超时、
 重试、背压、握手和链路统计。生成器在节点侧插入有界 RPC Router：本地服务仍走进程内
 Backend，跨节点 client/server 则连接到 CAN Adapter，业务 Module 始终只使用
 `core.rpc()`。对端重启会取消在途调用并丢弃旧会话的延迟回包。总线预算包含 framing、

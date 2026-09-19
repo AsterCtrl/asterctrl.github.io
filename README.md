@@ -10,6 +10,7 @@ npm run build
 npm start
 ```
 
-The site builds all configured locales. Documentation describes implemented
-behaviour only when a test, generated report, or build artifact supports the
-claim.
+The site currently publishes the `zh-Hans` locale only; an English locale will
+be enabled after an actual translation tree is added. Documentation describes
+implemented behaviour only when a test, generated report, or build artifact
+supports the claim.

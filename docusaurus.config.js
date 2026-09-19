@@ -2,7 +2,7 @@
 
 const config = {
   title: 'AsterCtrl',
-  tagline: 'One application. Native Linux and Zephyr deployments.',
+  tagline: 'Portable Modules for Linux and Zephyr targets.',
   url: 'https://asterctrl.github.io',
   baseUrl: '/',
   organizationName: 'AsterCtrl',
@@ -15,10 +15,10 @@ const config = {
   },
   i18n: {
     defaultLocale: 'zh-Hans',
-    locales: ['zh-Hans', 'en'],
+    // Keep one honest locale until an actual English translation tree exists.
+    locales: ['zh-Hans'],
     localeConfigs: {
       'zh-Hans': {label: '简体中文', htmlLang: 'zh-CN'},
-      en: {label: 'English', htmlLang: 'en'},
     },
   },
   presets: [
@@ -52,7 +52,6 @@ const config = {
         {to: '/docs/deployment', label: '部署', position: 'left'},
         {to: '/docs/transports', label: '通信', position: 'left'},
         {href: 'https://github.com/AsterCtrl/AsterCtrl/releases/tag/v0.2.0-alpha.1', label: 'v0.2.0-alpha.1', position: 'right'},
-        {type: 'localeDropdown', position: 'right'},
         {href: 'https://github.com/AsterCtrl', label: 'GitHub', position: 'right'},
       ],
     },
