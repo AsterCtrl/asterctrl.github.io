@@ -2,18 +2,19 @@
 title: Zephyr 与官方板卡
 ---
 
-# Board 与 Hardware Profile
+# Board 与 Zephyr 状态
 
 官方板卡仓库是 `AsterCtrl/asterctrl-boards`，v0.2 提供：
 
 - `dev_c`；
 - `mc02`。
 
-Board Devicetree 只描述板卡事实，例如 SoC、时钟、Flash/SRAM、固定外设和连接。机器人接线、
-设备别名、校准和具体驱动配置放在 Hardware Profile 或应用 overlay 中。
+Board Devicetree 只描述板卡事实，例如 SoC、时钟、Flash/SRAM、固定外设和连接。新部署
+编译器完成后，平台资源和 overlay 会由 `deployment.yaml` 生成；当前仍处于迁移阶段。
 
-Zephyr 依赖由 `west.yml` 固定，不能由 CMake `FetchContent` 获取。应用用户选择 Deployment
-和 Hardware Profile，`aster` 在 configure 前生成 Kconfig、Devicetree 和静态注册表。
+Zephyr 依赖由 `west.yml` 固定，不能由 CMake `FetchContent` 获取。应用用户选择 Runtime
+和可选 Deployment，目标是由 `aster` 在 configure 前生成 Kconfig、Devicetree 和静态注册表。
+当前 Zephyr 生成器仍消费 v1alpha2 输入，不能把它当成新路径。
 
 板卡仓库中的 `samples/qualification` 用同一份固件测试 console、monotonic clock、console
 UART TX、BMI08x SPI sample、CAN controller loopback 和 watchdog feed，并输出可机读的

@@ -1,27 +1,30 @@
 ---
-title: Application 与 Deployment 双图
+title: 配置、通信与部署
 ---
 
-# 双图分别回答什么问题
+# 普通 Linux 不需要双图文件
 
-`application.yaml` 回答“机器人做什么”：
+普通 Linux 的入口是：
 
-- Module Instance；
-- typed Channel/RPC Port；
-- 逻辑连接和业务参数；
-- Capability Requirement。
+```text
+编写 Module → CMake 构建 Package → runtime.yaml → aster run
+```
 
-它不能包含板卡、主机、IP、总线或引脚。
+`runtime.yaml` 选择 Package、Module Instance、Executor、日志、参数和 Local
+Channel/RPC。Module 在 `Initialize()` 中注册 Topic/RPC，Runtime 在 `Start()` 前封闭
+注册表。通信关系来自实际注册结果，而不是用户手写 Port 图。
 
-`deployment.<environment>.yaml` 回答“在哪里、怎样运行”：
+## 可选部署配置
 
-- Instance → Node、Node → Host 放置；
-- Linux/Zephyr Target；
-- Capability Provider 与 Hardware Profile；
-- Link、Transport、QoS、Clock 和 Executor 策略。
+跨节点或 Zephyr 部署可用 `deployment.yaml` 描述：
 
-`aster resolve` 把两张图编译为确定性的 `deployment.lock.yaml`，其中保存 Node/Route ID、
-Schema Hash、资源预算和产物摘要。运行时握手只验证已知身份，不能在 MCU 上创造新拓扑。
+- Instance 到 Node 的放置；
+- Linux/Zephyr 平台和板卡；
+- Topic/RPC 名称、类型、收发节点和容量预算；
+- Transport、Executor 和平台资源策略。
 
-同一 Application 可配 `deployment.sim.yaml` 和 `deployment.real.yaml`。业务 Module 不变，
-变化的只是 Adapter、放置、Transport 与时间策略。
+v1alpha3 Deployment 编译器尚未完成。当前 `aster graph`、`aster resolve` 和旧示例仍
+是 v1alpha2 回归路径，会输出迁移提示；它们不能代表新 Runtime 的通信图查询。
+
+无论部署在哪里，业务 Module 源码保持不变。真正实现这条路径后，Linux 和 Zephyr
+只会更换编译目标、Runtime Adapter 和节点配置。

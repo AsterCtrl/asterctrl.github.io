@@ -47,7 +47,7 @@ const config = {
       title: 'AsterCtrl',
       items: [
         {to: '/docs/', label: '文档', position: 'left'},
-        {to: '/docs/graphs', label: '双图模型', position: 'left'},
+        {to: '/docs/graphs', label: '配置与部署', position: 'left'},
         {to: '/docs/architecture', label: '架构', position: 'left'},
         {to: '/docs/deployment', label: '部署', position: 'left'},
         {to: '/docs/transports', label: '通信', position: 'left'},
@@ -70,7 +70,7 @@ const config = {
         {
           title: '工程',
           items: [
-            {label: 'Application Graph', to: '/docs/graphs'},
+            {label: '配置、通信与部署', to: '/docs/graphs'},
             {label: '配置与部署', to: '/docs/deployment'},
             {label: 'Zephyr 板卡', to: '/docs/zephyr'},
           ],

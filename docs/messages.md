@@ -11,6 +11,8 @@ Channel 用于有界的数据流和事件；RPC 用于带超时的有界请求/�
 上限；禁止 map、`Any`、递归消息和无界字段。
 
 `aster codegen` 生成 Linux/Zephyr 共用的固定容量 C++ 类型、编码器、解码器、最大编码长度
-和 Schema Hash。Target 不链接 Google Protobuf；Host CI 使用官方实现验证 wire compatibility。
+和 Schema Hash。生产 Target 不链接 Google Protobuf；Host CI 使用官方实现验证 wire
+compatibility。消息生成与 v1alpha3 Package Manifest 分开，不能把旧 Graph 的 proto 元数据
+继续当成新 Package 字段。
 
 解码时未知字段会被跳过，截断数据、非法 wire type、超长字段和容量溢出会返回明确错误。

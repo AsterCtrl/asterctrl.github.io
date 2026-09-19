@@ -27,10 +27,15 @@ ctest --preset host-debug
 
 ```bash
 uv run aster init hello-aster
-uv run aster validate hello-aster/deployment.sim.yaml
-uv run aster graph hello-aster/deployment.sim.yaml
-uv run aster resolve hello-aster/deployment.sim.yaml
+cmake -S hello-aster -B hello-aster/build -G Ninja \
+  -DASTERCTRL_SOURCE_DIR="$PWD"
+cmake --build hello-aster/build
+uv run aster validate hello-aster/runtime.yaml \
+  --runtime hello-aster/build/asterctrl/aster_runtime
+uv run aster run --runtime hello-aster/build/asterctrl/aster_runtime \
+  --config hello-aster/runtime.yaml --duration-ms 100
 ```
 
-`aster init` 会生成简单 Application 和 Deployment；多节点与正式发布必须显式提交
-Deployment 文件。
+`aster init` 只生成最小 Linux Package 和 `runtime.yaml`，不生成 Application、Deployment
+或自定义启动器。跨节点和 Zephyr 才需要额外的 Deployment 配置；其 v1alpha3 编译器
+仍在实现中。

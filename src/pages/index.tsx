@@ -46,30 +46,30 @@ type Copy = {
 const COPY: Record<'zh' | 'en', Copy> = {
   zh: {
     description: '原生运行于 Zephyr 与 Linux 的确定性控制框架。',
-    lead: 'Application 描述控制行为，Deployment 描述运行位置。AsterCtrl 在构建期解析 Module、静态路由与资源预算，让同一套业务逻辑原生运行于 MCU 和小电脑。',
-    releaseLabel: 'v0.2.0-alpha.1 已发布 · COMPILE-ONLY',
+    lead: 'Module 描述控制行为，runtime.yaml 选择 Linux 上的实例和运行策略。跨节点或 Zephyr 部署再增加 deployment.yaml；同一份业务源码按目标平台重新编译。',
+    releaseLabel: 'v0.2.0-alpha.1 · LINUX HOST / COMPILE-ONLY ZEPHYR',
     primaryAction: '开始使用',
     secondaryAction: '理解架构',
     entryTitle: '按任务进入文档',
-    entryLead: '从 Module 开发、整机配置、部署编译或链路诊断开始，不需要先理解全部实现。',
+    entryLead: '从 Module 开发、Runtime 配置、部署准备或调试开始，不需要先理解全部实现。',
     entries: [
       {index: '01', title: '搭建 Workspace', description: '安装工具，解析 Package，并完成首个 Host 构建。', to: '/docs/setup', tag: 'START'},
-      {index: '02', title: '开发 Module', description: '使用生命周期、端口和 Executor 编写可移植逻辑。', to: '/docs/module', tag: 'CODE'},
-      {index: '03', title: '编译部署图', description: '将逻辑实例放到目标节点，自动生成本地与跨节点路由。', to: '/docs/deployment', tag: 'DEPLOY'},
+      {index: '02', title: '开发 Module', description: '使用生命周期、Topic/RPC 和 Executor 编写可移植逻辑。', to: '/docs/module', tag: 'CODE'},
+      {index: '03', title: '配置与部署', description: '先用 runtime.yaml 启动 Linux；跨节点和 Zephyr 路径正在实现。', to: '/docs/deployment', tag: 'DEPLOY'},
       {index: '04', title: '分析运行状态', description: '检查消息年龄、deadline、队列水位和链路统计。', to: '/docs/debugging', tag: 'DEBUG'},
     ],
-    architectureTitle: '逻辑、部署与平台各自独立',
-    architectureLead: 'Node 是逻辑运行身份，不是板卡型号。替换硬件、Zephyr/Linux 进程或 Transport Adapter 时，Module 和消息契约保持不变。',
-    graphTitle: '应用图',
-    compileTitle: '部署编译器',
-    targetTitle: '目标节点',
+    architectureTitle: '配置、部署与平台各自独立',
+    architectureLead: 'runtime.yaml 负责 Linux 实例；deployment.yaml 只在跨节点或 Zephyr 时描述放置。Module 和消息契约不随目标平台改变。',
+    graphTitle: 'Runtime 配置',
+    compileTitle: 'Aster 解析',
+    targetTitle: '目标平台',
     boundaryTitle: '小而明确的框架核心',
     boundaryLead: 'AsterCtrl 不内置某一种被控对象。领域能力以独立 Package 组合，核心只提供可移植运行语义与生成工具。',
     boundaryItems: [
       {title: 'Runtime', description: '生命周期、Executor、参数、诊断与有界资源。'},
       {title: 'Contracts', description: 'Channel、RPC、bounded Protobuf 与 TypeSupport。'},
-      {title: 'Deployment', description: '实例放置、QoS、静态路由、预算与版本锁定。'},
-      {title: 'Adapters', description: 'Zephyr、Linux、Hardware、Clock 与 Transport 实现。'},
+      {title: 'Deployment', description: '跨节点实例放置、Topic/RPC 契约与平台策略。'},
+      {title: 'Adapters', description: 'Linux、Zephyr、Clock 与 Transport 的具体实现。'},
     ],
     repositoryTitle: '两个官方代码仓库',
     repositoryLead: 'Runtime、CLI、协议和 Transport 在核心单仓中原子演进；官方 Zephyr board 独立发布。',
@@ -78,7 +78,7 @@ const COPY: Record<'zh' | 'en', Copy> = {
       {
         name: 'AsterCtrl',
         role: '核心框架单仓',
-        description: '包含 C++20 Runtime、aster CLI、双图编译器、bounded Protobuf、Transport、示例与技术文档。',
+        description: '包含 C++20 Runtime、aster CLI、bounded Protobuf、Transport 回归实现、示例与技术文档。',
         technology: 'C++20 · PYTHON',
         href: 'https://github.com/AsterCtrl/AsterCtrl',
       },
@@ -93,30 +93,30 @@ const COPY: Record<'zh' | 'en', Copy> = {
   },
   en: {
     description: 'A deterministic control framework native to Zephyr and Linux.',
-    lead: 'Applications describe control behavior; deployments describe where it runs. AsterCtrl resolves Modules, static routes, and resource budgets before the build so the same business logic runs natively on MCUs and Linux computers.',
-    releaseLabel: 'v0.2.0-alpha.1 released · COMPILE-ONLY',
+    lead: 'Modules describe control behavior; runtime.yaml selects Linux instances and policies. Cross-node or Zephyr deployment adds deployment.yaml, while the same business source is rebuilt for each target.',
+    releaseLabel: 'v0.2.0-alpha.1 · LINUX HOST / COMPILE-ONLY ZEPHYR',
     primaryAction: 'Get started',
     secondaryAction: 'Understand the architecture',
     entryTitle: 'Enter by task',
-    entryLead: 'Start with Module development, system configuration, deployment compilation, or link diagnostics without reading every implementation detail first.',
+    entryLead: 'Start with Module development, Runtime configuration, deployment preparation, or debugging without reading every implementation detail first.',
     entries: [
       {index: '01', title: 'Set up a Workspace', description: 'Install the tools, resolve Packages, and complete a Host build.', to: '/docs/setup', tag: 'START'},
-      {index: '02', title: 'Develop a Module', description: 'Write portable logic with lifecycle, ports, and Executors.', to: '/docs/module', tag: 'CODE'},
-      {index: '03', title: 'Compile a deployment', description: 'Place logical instances and generate local or remote routes.', to: '/docs/deployment', tag: 'DEPLOY'},
+      {index: '02', title: 'Develop a Module', description: 'Write portable logic with lifecycle, Topic/RPC, and Executors.', to: '/docs/module', tag: 'CODE'},
+      {index: '03', title: 'Configure and deploy', description: 'Run Linux with runtime.yaml; cross-node and Zephyr paths are in progress.', to: '/docs/deployment', tag: 'DEPLOY'},
       {index: '04', title: 'Inspect runtime state', description: 'Trace message age, deadlines, queue watermarks, and link metrics.', to: '/docs/debugging', tag: 'DEBUG'},
     ],
-    architectureTitle: 'Logic, deployment, and platform stay separate',
-    architectureLead: 'A Node is a logical runtime identity, not a board model. Modules and message contracts remain stable when hardware, Zephyr/Linux placement, or Transport Adapters change.',
-    graphTitle: 'Application graph',
-    compileTitle: 'Deployment compiler',
-    targetTitle: 'Target nodes',
+    architectureTitle: 'Configuration, deployment, and platform stay separate',
+    architectureLead: 'runtime.yaml owns Linux instances; deployment.yaml adds placement for cross-node or Zephyr targets. Modules and message contracts remain stable across platforms.',
+    graphTitle: 'Runtime config',
+    compileTitle: 'Aster resolver',
+    targetTitle: 'Target platforms',
     boundaryTitle: 'A small, explicit framework core',
     boundaryLead: 'AsterCtrl does not embed one control architecture. Domain capabilities are composed as Packages; the core provides portable runtime semantics and generation tools.',
     boundaryItems: [
       {title: 'Runtime', description: 'Lifecycle, Executors, parameters, diagnostics, and bounded resources.'},
       {title: 'Contracts', description: 'Channel, RPC, bounded Protobuf, and TypeSupport.'},
-      {title: 'Deployment', description: 'Placement, QoS, static routes, budgets, and version locks.'},
-      {title: 'Adapters', description: 'Zephyr, Linux, Hardware, Clock, and Transport implementations.'},
+      {title: 'Deployment', description: 'Placement, Topic/RPC contracts, and platform policy.'},
+      {title: 'Adapters', description: 'Linux, Zephyr, Clock, and Transport implementations.'},
     ],
     repositoryTitle: 'Two official repositories',
     repositoryLead: 'Runtime, CLI, protocol, and Transports evolve atomically in the core monorepo; official Zephyr boards are released separately.',
@@ -125,7 +125,7 @@ const COPY: Record<'zh' | 'en', Copy> = {
       {
         name: 'AsterCtrl',
         role: 'Core framework monorepo',
-        description: 'C++20 Runtime, aster CLI, dual-graph compiler, bounded Protobuf, Transports, examples, and technical documentation.',
+        description: 'C++20 Runtime, aster CLI, bounded Protobuf, Transport regressions, examples, and technical documentation.',
         technology: 'C++20 · PYTHON',
         href: 'https://github.com/AsterCtrl/AsterCtrl',
       },
@@ -181,7 +181,7 @@ export default function Home(): React.ReactElement {
               <div className={styles.compilerBlock}>
                 <span>ASTER</span>
                 <strong>{copy.compileTitle}</strong>
-                <code>graph + profiles</code>
+                <code>runtime + deployment</code>
               </div>
               <div className={styles.diagramColumn}>
                 <span>{copy.targetTitle}</span>
@@ -219,11 +219,11 @@ export default function Home(): React.ReactElement {
               <p>{copy.architectureLead}</p>
             </div>
             <div className={styles.deploymentFlow}>
-              <div><span>01</span><strong>Application</strong><code>instances + ports</code></div>
+              <div><span>01</span><strong>Runtime YAML</strong><code>instances + policies</code></div>
               <i aria-hidden="true">→</i>
               <div><span>02</span><strong>Deployment</strong><code>placement + QoS</code></div>
               <i aria-hidden="true">→</i>
-              <div><span>03</span><strong>Target Profiles</strong><code>board + OS + links</code></div>
+              <div><span>03</span><strong>Platform Adapters</strong><code>board + OS + links</code></div>
               <i aria-hidden="true">→</i>
               <div><span>04</span><strong>Generated Runtime</strong><code>composition + routes</code></div>
             </div>
